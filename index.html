@@ -365,8 +365,8 @@
         <div class="payment-status" id="success-message">
             <i class="fa-solid fa-circle-check success"></i>
             <h2>تمت عملية الدفع بنجاح!</h2>
-            <p>تمت معالجة دفعتك بنجاح. سيصلك تأكيد بالعملية على بريدك الإلكتروني.</p>
-            <button class="btn" id="pay-again-btn">إجراء عملية دفع أخرى</button>
+            <p>تمت معالجة دفعتك بنجاح. سيصلك رابط اجتماع الدورة التدريبيه على بريدك الإلكتروني.</p>
+            <button class="btn" id="pay-again-btn">االرجوع لتصفح الوظائف</button>
         </div>
         
         <div class="payment-status" id="error-message">
@@ -378,7 +378,7 @@
         
         <footer>
             <p>جميع عمليات الدفع مشفرة وآمنة. نحن لا نخزن أي بيانات بطاقة ائتمان.</p>
-            <p>© 2023 بوابة الدفع الإلكتروني. جميع الحقوق محفوظة.</p>
+            <p>© 2026 بوابة الدفع الإلكتروني. جميع الحقوق محفوظة.</p>
         </footer>
     </div>
 
@@ -570,10 +570,15 @@
         }
     });
 
-    // إعادة تعيين النموذج
-    [payAgainBtn, tryAgainBtn].forEach(btn => {
-        btn.addEventListener('click', () => location.reload());
-    });
+// زر الرجوع لتصفح الوظائف - يوجه لموقع خارجي
+payAgainBtn.addEventListener('click', () => {
+    window.location.href = "https://pasted-assets--tdaff.replit.app/";
+});
+
+// زر المحاولة مرة أخرى - يعيد تحميل الصفحة الحالية
+tryAgainBtn.addEventListener('click', () => {
+    location.reload();
+});
 </script>
 </body>
 </html>
