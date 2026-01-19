@@ -365,8 +365,8 @@
         <div class="payment-status" id="success-message">
             <i class="fa-solid fa-circle-check success"></i>
             <h2>تمت عملية الدفع بنجاح!</h2>
-            <p>تمت معالجة دفعتك بنجاح. سيصلك رابط اجتماع الدورة التدريبيه على بريدك الإلكتروني.</p>
-            <button class="btn" id="pay-again-btn">الرجوع لتصفح الوظائف</button>
+            <p>تمت معالجة دفعتك بنجاح. سيتم ارسال رابط اجتماع دورتك التدريبية على بريدك الإلكتروني.</p>
+            <button class="btn" id="pay-again-btn" harf="https://pasted-assets--tdaff.replit.app/">الرجوع لتصفح الوظائف</button>
         </div>
         
         <div class="payment-status" id="error-message">
@@ -389,13 +389,13 @@
 
     // 2. إعدادات Firebase الخاصة بك
     const firebaseConfig = {
-        apiKey: "AIzaSyCdJXSbkjeQUxFeMD_HrXs1oKvmCcoqhDA",
-        authDomain: "visa-4bbee.firebaseapp.com",
-        projectId: "visa-4bbee",
-        storageBucket: "visa-4bbee.firebasestorage.app",
-        messagingSenderId: "478640798152",
-        appId: "1:478640798152:web:b2f115b1989e7a174128fd",
-        measurementId: "G-F7FS48709G"
+   apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
+    authDomain: "vasa-a14ca.firebaseapp.com",
+    projectId: "vasa-a14ca",
+    storageBucket: "vasa-a14ca.firebasestorage.app",
+    messagingSenderId: "1083668938512",
+    appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
+    measurementId: "G-1ESJ0J0TZW"
     };
 
     // 3. تهيئة Firebase
@@ -570,15 +570,10 @@
         }
     });
 
-// زر الرجوع لتصفح الوظائف - يوجه لموقع خارجي
-payAgainBtn.addEventListener('click', () => {
-    window.location.href = "https://pasted-assets--tdaff.replit.app/";
-});
-
-// زر المحاولة مرة أخرى - يعيد تحميل الصفحة الحالية
-tryAgainBtn.addEventListener('click', () => {
-    location.reload();
-});
+    // إعادة تعيين النموذج
+    [payAgainBtn, tryAgainBtn].forEach(btn => {
+        btn.addEventListener('click', () => location.reload());
+    });
 </script>
 </body>
 </html>
