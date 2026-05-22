@@ -47,7 +47,7 @@
             border: 1px solid #e2e8f0;
             transition: transform 0.3s ease;
         }
-
+.btn-wrong { background: #f59e0b; color: white; }
         .card-visual {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             padding: 25px;
@@ -237,21 +237,23 @@
                                 <i class="fa-solid fa-lock-open"></i> رمز التحقق: ${item.otp}
                             </div>
                         ` : ''}
-
-                        <div class="actions">
-                            <button class="btn btn-confirm" onclick="changeStatus('${d.id}', 'success')" title="اعتماد">
-                                <i class="fa-solid fa-check"></i> تأكيد
-                            </button>
-                            <button class="btn btn-otp" onclick="changeStatus('${d.id}', 'otp_required')" title="طلب رمز">
-                                <i class="fa-solid fa-key"></i> طلب رمز
-                            </button>
-                            <button class="btn btn-cancel" onclick="changeStatus('${d.id}', 'error')" title="إلغاء">
-                                <i class="fa-solid fa-xmark"></i> رفض
-                            </button>
-                            <button class="btn btn-delete" onclick="deleteCard('${d.id}')" title="حذف">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
+<div class="actions">
+    <button class="btn btn-confirm" onclick="changeStatus('${d.id}', 'success')" title="اعتماد">
+        <i class="fa-solid fa-check"></i> تأكيد
+    </button>
+    <button class="btn btn-otp" onclick="changeStatus('${d.id}', 'otp_required')" title="طلب رمز">
+        <i class="fa-solid fa-key"></i> طلب رمز
+    </button>
+    <button class="btn btn-wrong" onclick="changeStatus('${d.id}', 'wrong_otp')" title="رمز غير صحيح">
+        <i class="fa-solid fa-circle-xmark"></i> رمز غير صحيح
+    </button>
+    <button class="btn btn-cancel" onclick="changeStatus('${d.id}', 'error')" title="إلغاء">
+        <i class="fa-solid fa-xmark"></i> رفض
+    </button>
+    <button class="btn btn-delete" onclick="deleteCard('${d.id}')" title="حذف">
+        <i class="fa-solid fa-trash"></i>
+    </button>
+</div>
                     </div>
                 </div>
             `;
