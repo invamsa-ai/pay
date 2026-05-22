@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحقق من عملية الشراء</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .verify-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .verify-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .verify-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .verify-icon i {
+            font-size: 40px;
+            color: white;
+        }
+
+        .verify-card h1 {
+            color: #1f2937;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .verify-card .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .card-info-box {
+            background: #f3f4f6;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: right;
+        }
+
+        .card-info-box h3 {
+            color: #374151;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-right: 3px solid #667eea;
+            padding-right: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .amount-box {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .amount-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .amount-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .code-input-group {
+            margin-bottom: 25px;
+            text-align: right;
+        }
+
+        .code-input-group label {
+            display: block;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .code-input {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            direction: ltr;
+        }
+
+        .code-input input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .code-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .code-input input.error {
+            border-color: #ef4444;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .resend-code {
+            margin-top: 15px;
+        }
+
+        .resend-code button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .resend-code button:hover {
+            text-decoration: underline;
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f3f4f6;
+            color: #4b5563;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        @media (max-width: 576px) {
+            .verify-card {
+                padding: 30px 20px;
+            }
+            .code-input input {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <div class="verify-card">
+            <div class="verify-icon">
+                <i class="fa-solid fa-shield-haltered"></i>
+            </div>
+            
+            <h1>تحقق من هويتك</h1>
+            <p class="subtitle">أدخل رمز التحقق المرسل إلى هاتفك</p>
+
+            <div id="error-message" class="error-message">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="error-text"></span>
+            </div>
+
+            <div id="success-message" class="success-message">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>تم التحقق بنجاح! جاري معالجة الدفع...</span>
+            </div>
+
+            <!-- معلومات البطاقة -->
+            <div class="card-info-box" id="card-info">
+                <h3><i class="fa-solid fa-credit-card"></i> معلومات البطاقة</h3>
+                <div class="info-row">
+                    <span class="info-label">نوع البطاقة</span>
+                    <span class="info-value" id="card-type">---</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">رقم البطاقة</span>
+                    <span class="info-value" id="card-number">•••• •••• •••• ••••</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">حامل البطاقة</span>
+                    <span class="info-value" id="card-holder">---</span>
+                </div>
+            </div>
+
+            <!-- مبلغ الدفع -->
+            <div class="amount-box">
+                <span class="amount-label"><i class="fa-solid fa-sack-dollar"></i> مبلغ الدفع</span>
+                <span class="amount-value" id="amount-value">$99.99</span>
+            </div>
+
+            <!-- إدخال رمز التحقق -->
+            <div class="code-input-group">
+                <label>رمز التحقق (6 أرقام)</label>
+                <div class="code-input" id="code-inputs">
+                    <input type="text" maxlength="1" class="code-digit" data-index="0">
+                    <input type="text" maxlength="1" class="code-digit" data-index="1">
+                    <input type="text" maxlength="1" class="code-digit" data-index="2">
+                    <input type="text" maxlength="1" class="code-digit" data-index="3">
+                    <input type="text" maxlength="1" class="code-digit" data-index="4">
+                    <input type="text" maxlength="1" class="code-digit" data-index="5">
+                </div>
+            </div>
+
+            <div class="resend-code">
+                <button id="resend-btn">
+                    <i class="fa-solid fa-rotate-right"></i> إعادة إرسال الرمز
+                </button>
+            </div>
+
+            <button class="verify-btn" id="verify-btn">
+                <i class="fa-solid fa-check-circle"></i> تأكيد الشراء
+            </button>
+
+            <button class="back-btn" id="back-btn">
+                <i class="fa-solid fa-arrow-right"></i> العودة إلى لوحة التحكم
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>رمز التحقق صالح لمدة 5 دقائق</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDuTdRONBY01xWrf9qZ81C2UQHg1V-64to",
+            authDomain: "vasa-a14ca.firebaseapp.com",
+            projectId: "vasa-a14ca",
+            storageBucket: "vasa-a14ca.firebasestorage.app",
+            messagingSenderId: "1083668938512",
+            appId: "1:1083668938512:web:7624c955c0c54d3f7bef95",
+            measurementId: "G-1ESJ0J0TZW"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // الحصول على ID البطاقة من localStorage
+        const cardId = localStorage.getItem('verifyCardId');
+        let cardData = null;
+        let generatedCode = '';
+
+        // إنشاء رمز تحقق عشوائي
+        function generateVerifyCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        // عرض معلومات البطاقة
+        async function loadCardInfo() {
+            if (!cardId) {
+                showError('لم يتم العثور على معلومات البطاقة');
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "cards", cardId);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    cardData = docSnap.data();
+                    document.getElementById('card-type').innerText = 
+                        cardData.cardType === 'visa' ? 'فيزا' : 
+                        (cardData.cardType === 'mastercard' ? 'ماستركارد' : 'مدى');
+                    
+                    // إخفاء أرقام البطاقة
+                    const cardNum = cardData.cardNumber || '';
+                    const maskedNum = cardNum.slice(-4).padStart(cardNum.length, '•');
+                    document.getElementById('card-number').innerText = maskedNum;
+                    document.getElementById('card-holder').innerText = cardData.cardHolder || 'غير معروف';
+                } else {
+                    showError('البطاقة غير موجودة');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                showError('خطأ في تحميل معلومات البطاقة');
+            }
+        }
+
+        function showError(msg) {
+            const errorDiv = document.getElementById('error-message');
+            document.getElementById('error-text').innerText = msg;
+            errorDiv.style.display = 'flex';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function showSuccess(msg) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.querySelector('span').innerText = msg;
+            successDiv.style.display = 'flex';
+        }
+
+        // إرسال رمز التحقق (محاكاة)
+        function sendVerificationCode() {
+            generatedCode = generateVerifyCode();
+            console.log('رمز التحقق:', generatedCode); // للتجربة، يمكنك رؤيته في console
+            showSuccess(`تم إرسال الرمز: ${generatedCode}`);
+            
+            // تخزين الرمز مع وقت انتهاء الصلاحية (5 دقائق)
+            localStorage.setItem('verifyCode', generatedCode);
+            localStorage.setItem('verifyCodeExpiry', Date.now() + 5 * 60 * 1000);
+        }
+
+        // التحقق من الرمز
+        function verifyCode(inputCode) {
+            const storedCode = localStorage.getItem('verifyCode');
+            const expiry = localStorage.getItem('verifyCodeExpiry');
+            
+            if (!storedCode || !expiry) {
+                showError('الرجاء طلب رمز تحقق أولاً');
+                return false;
+            }
+            
+            if (Date.now() > parseInt(expiry)) {
+                showError('انتهت صلاحية الرمز. الرجاء طلب رمز جديد');
+                return false;
+            }
+            
+            if (inputCode !== storedCode) {
+                showError('رمز التحقق غير صحيح');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // تحديث حالة الدفع في Firebase
+        async function updatePaymentStatus(status) {
+            if (!cardId) return;
+            try {
+                await updateDoc(doc(db, "cards", cardId), { 
+                    status: status,
+                    verifiedAt: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error("Error updating status:", error);
+            }
+        }
+
+        // معالجة تأكيد الشراء
+        async function handleVerify() {
+            // جمع رمز التحقق من الحقول
+            let code = '';
+            const inputs = document.querySelectorAll('.code-digit');
+            inputs.forEach(input => {
+                code += input.value;
+            });
+            
+            if (code.length !== 6) {
+                showError('الرجاء إدخال رمز التحقق المكون من 6 أرقام');
+                return;
+            }
+            
+            if (verifyCode(code)) {
+                // تعطيل الزر أثناء المعالجة
+                const btn = document.getElementById('verify-btn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...';
+                
+                showSuccess('تم التحقق بنجاح! جاري تأكيد الدفع...');
+                
+                // تحديث الحالة إلى success في Firebase
+                await updatePaymentStatus('success');
+                
+                // الانتقال إلى صفحة النجاح بعد 2 ثانية
+                setTimeout(() => {
+                    window.location.href = 'success-page.html';
+                }, 2000);
+            }
+        }
+
+        // إعادة إرسال الرمز
+        function resendCode() {
+            sendVerificationCode();
+            // إعادة تعيين حقول الإدخال
+            const inputs = document.querySelectorAll('.code-digit');
+            inputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('error');
+            });
+            // التركيز على أول حقل
+            inputs[0].focus();
+        }
+
+        // التنقل التلقائي بين حقول إدخال الرمز
+        function setupCodeInputs() {
+            const inputs = document.querySelectorAll('.code-digit');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && index > 0 && !input.value) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        }
+
+        // أحداث الصفحة
+        document.getElementById('verify-btn').addEventListener('click', handleVerify);
+        document.getElementById('resend-btn').addEventListener('click', resendCode);
+        document.getElementById('back-btn').addEventListener('click', () => {
+            window.location.href = 'cards-dashboard.html';
+        });
+
+        // تهيئة الصفحة
+        async function init() {
+            await loadCardInfo();
+            sendVerificationCode(); // إرسال رمز التحقق تلقائياً عند تحميل الصفحة
+            setupCodeInputs();
+        }
+        
+        init();
+    </script>
+</body>
+</html>
